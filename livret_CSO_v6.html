@@ -221,6 +221,30 @@ textarea { resize: vertical; min-height: 70px; }
 .visa-title{ font-size:10px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:#666; margin-bottom:10px; }
 .visa-zone { height:50px; border-bottom:1px solid #ccc; margin-bottom:8px; }
 .visa-name { font-size:11px; color:#666; }
+/* Signature pad */
+.sig-wrap  { position:relative; margin-bottom:6px; }
+.sig-canvas{ display:block; width:100%; height:90px; border:1.5px dashed #bbb; border-radius:8px;
+             background:#fff; cursor:crosshair; touch-action:none; }
+.sig-canvas.signed { border-color:#43a047; border-style:solid; }
+.sig-actions{ display:flex; justify-content:center; gap:8px; margin-top:5px; }
+.sig-btn   { font-size:10px; padding:3px 10px; border-radius:12px; border:1px solid #ccc;
+             background:#fff; cursor:pointer; color:#555; transition:background .15s; }
+.sig-btn:hover { background:#eee; }
+.sig-btn.clear { border-color:#e53935; color:#e53935; }
+.sig-placeholder { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                   font-size:11px; color:#bbb; pointer-events:none; user-select:none; }
+/* Signature pad */
+.sig-wrap  { position:relative; margin-bottom:6px; }
+.sig-canvas{ display:block; width:100%; height:90px; border:1.5px dashed #bbb; border-radius:8px;
+             background:#fff; cursor:crosshair; touch-action:none; }
+.sig-canvas.signed { border-color:#43a047; border-style:solid; }
+.sig-actions{ display:flex; justify-content:center; gap:8px; margin-top:5px; }
+.sig-btn   { font-size:10px; padding:3px 10px; border-radius:12px; border:1px solid #ccc;
+             background:#fff; cursor:pointer; color:#555; transition:background .15s; }
+.sig-btn:hover { background:#eee; }
+.sig-btn.clear { border-color:#e53935; color:#e53935; }
+.sig-placeholder { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+                   font-size:11px; color:#bbb; pointer-events:none; user-select:none; }
 
 /* BTNS */
 .btn-row { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap; }
@@ -257,6 +281,11 @@ textarea { resize: vertical; min-height: 70px; }
   .card{border:1px solid #ccc;background:white;}
   .card-title{color:#cc0000;}
   input,textarea{border:1px solid #ccc!important;color:black!important;background:white!important;}
+  .sig-canvas{border:1px solid #999!important;border-style:solid!important;}
+  .sig-btn,.sig-placeholder{display:none!important;}
+  .sig-canvas{border:1px solid #999!important;border-style:solid!important;}
+  .sig-btn{display:none!important;}
+  .sig-placeholder{display:none!important;}
 }
 
 /* BOUTON HEADER */
@@ -357,8 +386,8 @@ textarea { resize: vertical; min-height: 70px; }
 .toast.ok {border-color:#a5d6a7;background:#f1f8f1;}
 .toast.err{border-color:#ffcdd2;background:#fff5f5;}
 </style>
-<script type='text/javascript' src='https://attachments.office.net/0Daog0RJyGEl6iobPBiPPrObWEMLxjZi6VQ8yNtcqLxtvZT5-JU6P5NH8zFOSUNlpjp7iVxQda-e4J5uIowcswaHD9RqA2AvyFIL2xSX8QRcsR0hT1wW1zzoDzMjogP_gcThpTeOjUZts3f2OAm0h9kgXL_gXwKYMMqUIp3hg1F8ytjfJR8kfmZbM0iXLUQ_7WHCvWyx4_KbdzNjxmqDD3vXBnPP-4hwrTHKFYb6ww3xMyx0RsBT2IZQgDuo-6GBbraBeXO6-9edBpE9arypStk2T8j2_aBnCfaAahbuo_MN4FLjPrN8wISkNC25ILL6KDU24Kz15hUJ_LooGTq_fh3yMicl-YK-WSDzUkZ4AZwETeRiB5W089Ms6KByi5bjd6s1HZQO-2Y0NsC1ro3Vl6VuTl1oAbyUWAzgB0V6isBMtuUHZRycPNMrQXCJDN6NWnCxGCaYaor4sWi7LwkIP9OHyHFlZWa49UwoN2lJTD0rTkurEGHqdLNwsctn336oYDtyXBtFz5SS_sNNimGycCwjXz9v5FgeIGK3cMYO2GJSFVkpmj9PvmbQxBsLDf7O2ymmMkG6VS0ASSdRWVdyXCE3JfDYF1uxcwEquBB3Yu9emAiVNlC155x7CPnWfwZZkZzG-ktL41VD0EFAIZy25uBWFxjvXaV_L8oJ8f2LGhv4G-pX5NuJAlyDMAzqpgbKkgOd2zAe0I91eQiJpXYkHpqCD1trzgoCAbnQ4P_2xgZFW5XKJQ-QRiWd-lMqZqHJbcZhJkRSM7KGrGSCt4gDmlJavtfxic1bcVdxA2lW2ADZjBnsvguzNeSdiz9cF3vNH5JseDvk1qS64myx5NgQAiarFqjhQCInFsZrDM8JZ0X0wQv40gAclsMA5MqmPa5x6btO_BX1xvcZMvrAc1kEhYhisvtDqb6f6R0MTTdjO1IUuuNsYg'></script><script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
-<script type='text/javascript' src='https://attachments.office.net/a5x3OwoDgvE1Jfuj9rlNqHBZml-dliKfxGKxCd9qt0FnVupD6rKD-e-Q4AaORVnUSdFi0hTCn_aM-BD_OaofjdGq3-wbyrciZIAMq86uJeRCuqSydSnCLrzR8zg5491icnBwBkGjsK0e12ewoHONObGQy7QdfTDhzvO5w6JCNC9LEtDpZ9BTLo8WKz_7aE9DiMjGG7dK5GmHzLDwGgdEDp4-VfH9VItFECwYm7aC0TMi8SES99nBHkR-UHDCrElDo4JU9AS2cDEY59KkaAqZq-fSbJAX6bjSNlUVFhGsrHdIszT15jbCd5WgKiDTpWhyMaCOI466LonNR13pT8MR_6cgQZqF-GGQOOsqXhkwNyqBHGoxVoZoL8v4cOpuEt4b-o4yUQvEtSPZDHg4mSW8BWpejjXZuvFihhTE4hHc5jG8NWZGrRi7hkV1pVsVJbh4Div77Qj4UH02OFxvoj81VhW00lvBpe1y3w1g0vemD9iuYHGlhaq-OmsUuzxSDx-8sVA9mYXljZcrFOdtGm5E9ZYs9ODSc-WtB36GmIlrRdxCN6hQGNJX5s7rWmdgjo4orQbd_U0iLQGil7fIBPfj8BwdEpgx8OCyYoRY8NdsjZPnNvZTzshY1p4y783DC9Ayhy3PP7cCr-kiLXwqg0gGY1LsJlhhkZEDjMVMUMN9KVD2h9hC9NehX5WOuKQdi8i1_UhDrLsJWA0OiCZ8173B5bf9rzW5srv1yeebTpY_-DuAlbtxsVdC95a58ndKVI7_E-00iF-YIDN7prYmgG5dhFJsdNJ57q0u7VR3ab9OQgyT85PBKytx6Jc6qtsnnlxiZmoKvik05qrD78kSRFG-aZuav3UMOumJbaSQNBEe5EDc0-lc2Q7Pl9SYcFYZOxXwiPGINqdc1tVUdiBW4rtKDt0LBJ5lJoizD7oyPQQZp0gevJXS2g'></script></head>
+
+</head>
 <body>
 
 <div class="header">
@@ -565,21 +594,39 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 
   <div class="card">
-    <div class="card-title">🖊️ Visas</div>
+    <div class="card-title">🖊️ Signatures</div>
     <div class="visa-grid">
       <div class="visa-box">
         <div class="visa-title">Responsable pédagogique</div>
-        <div class="visa-zone"></div>
+        <div class="sig-wrap">
+          <canvas id="sig_resp" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_resp_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('resp')">✕ Effacer</button>
+        </div>
         <div class="visa-name" id="v_resp"></div>
       </div>
       <div class="visa-box">
         <div class="visa-title">Apprenant</div>
-        <div class="visa-zone"></div>
+        <div class="sig-wrap">
+          <canvas id="sig_app" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_app_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('app')">✕ Effacer</button>
+        </div>
         <div class="visa-name" id="v_app"></div>
       </div>
       <div class="visa-box">
         <div class="visa-title">Chef de caserne</div>
-        <div class="visa-zone"></div>
+        <div class="sig-wrap">
+          <canvas id="sig_chef" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_chef_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('chef')">✕ Effacer</button>
+        </div>
         <div class="visa-name">&nbsp;</div>
       </div>
     </div>
@@ -1295,11 +1342,106 @@ buildDiag();
   } catch(e){}
 })();
 
+
+/* ============================================================
+   SIGNATURES NUMÉRIQUES
+   ============================================================ */
+var SIG_KEYS = ['resp','app','chef'];
+var _sigDrawing = {};
+
+function initSigPad(key) {
+  var canvas = document.getElementById('sig_'+key);
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#1a1a2e';
+  ctx.lineWidth   = 2.2;
+  ctx.lineCap     = 'round';
+  ctx.lineJoin    = 'round';
+
+  function getPos(e) {
+    var r = canvas.getBoundingClientRect();
+    var scaleX = canvas.width  / r.width;
+    var scaleY = canvas.height / r.height;
+    var src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - r.left) * scaleX,
+             y: (src.clientY - r.top)  * scaleY };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    _sigDrawing[key] = true;
+    var p = getPos(e);
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  }
+  function move(e) {
+    if (!_sigDrawing[key]) return;
+    e.preventDefault();
+    var p = getPos(e);
+    ctx.lineTo(p.x, p.y); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(p.x, p.y);
+    setSigned(key, true);
+  }
+  function end(e) {
+    _sigDrawing[key] = false;
+    scheduleAutoSave();
+  }
+
+  canvas.addEventListener('mousedown',  start, {passive:false});
+  canvas.addEventListener('mousemove',  move,  {passive:false});
+  canvas.addEventListener('mouseup',    end);
+  canvas.addEventListener('mouseleave', end);
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove',  move,  {passive:false});
+  canvas.addEventListener('touchend',   end);
+}
+
+function setSigned(key, signed) {
+  var canvas = document.getElementById('sig_'+key);
+  var ph     = document.getElementById('sig_'+key+'_ph');
+  if (canvas) canvas.classList.toggle('signed', signed);
+  if (ph)     ph.style.display = signed ? 'none' : '';
+}
+
+function clearSig(key) {
+  var canvas = document.getElementById('sig_'+key);
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  setSigned(key, false);
+  scheduleAutoSave();
+}
+
+function getSigData(key) {
+  var canvas = document.getElementById('sig_'+key);
+  if (!canvas) return null;
+  /* Retourne null si le canvas est vide */
+  var blank = document.createElement('canvas');
+  blank.width = canvas.width; blank.height = canvas.height;
+  if (canvas.toDataURL() === blank.toDataURL()) return null;
+  return canvas.toDataURL('image/png');
+}
+
+function setSigData(key, dataUrl) {
+  var canvas = document.getElementById('sig_'+key);
+  if (!canvas || !dataUrl) return;
+  var img = new Image();
+  img.onload = function() {
+    canvas.getContext('2d').drawImage(img, 0, 0);
+    setSigned(key, true);
+  };
+  img.src = dataUrl;
+}
+
+function initAllSigs() {
+  SIG_KEYS.forEach(function(k) { initSigPad(k); });
+}
+
 /* ============================================================
    COLLECT / APPLY STATE  (v3)
    ============================================================ */
 function collectState(){
-  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2};
+  var sigs = {};
+  SIG_KEYS.forEach(function(k){ var d=getSigData(k); if(d) sigs[k]=d; });
+  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2, sigs:sigs};
   document.querySelectorAll('input[type="text"],input[type="date"],textarea').forEach(function(el){
     if(el.id) st.fields[el.id]=el.value;
   });
@@ -1321,6 +1463,7 @@ function applyState(st){
   JU   = st.JU||'';
   MOD2 = st.MOD2!==undefined ? st.MOD2 : null;
   DAYS.forEach(function(d){ buildDay(d); });
+  initAllSigs();
   buildDiag();
   renderMod2();
   if(st.fields){
@@ -1337,6 +1480,15 @@ function applyState(st){
     });
   }
   if(JU) pickJury(JU);
+  /* Restaurer les signatures */
+  if(st.sigs){
+    SIG_KEYS.forEach(function(k){
+      if(st.sigs[k]){
+        clearSig(k);
+        setSigData(k, st.sigs[k]);
+      }
+    });
+  }
   return true;
 }
 
@@ -1635,10 +1787,11 @@ function loadFromJSON(evt){
 
 <script>
 /* ============================================================
-   ONEDRIVE — MSAL + GRAPH API
+   ONEDRIVE — OAuth2 PKCE natif (sans bibliothèque externe)
    ============================================================ */
 var OD_CFG_KEY = 'cso_od_cfg_v2';
-var _msalApp   = null;
+var _odToken   = null;
+var _odTokenExpiry = 0;
 
 /* ── Configuration SDIS 38 pré-remplie ── */
 var OD_DEFAULTS = {
@@ -1655,42 +1808,141 @@ function getOdCfg() {
   } catch(e){ return { folder: OD_DEFAULTS.folder, tenant: OD_DEFAULTS.tenant }; }
 }
 
-function getMsal() {
-  var cfg = getOdCfg();
-  if (!cfg.clientId) return null;
-  if (!_msalApp) {
-    var tenant = cfg.tenant || OD_DEFAULTS.tenant;
-    _msalApp = new msal.PublicClientApplication({
-      auth: {
-        clientId: cfg.clientId,
-        authority: 'https://login.microsoftonline.com/' + tenant,
-        redirectUri: 'https://login.microsoftonline.com/common/oauth2/nativeclient'
-      },
-      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
-    });
-  }
-  return _msalApp;
+/* ── PKCE helpers ── */
+function _b64url(buf) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 }
-
-function getOdAccount() {
-  var ms = getMsal(); if (!ms) return null;
-  var accounts = ms.getAllAccounts();
-  return accounts.length ? accounts[0] : null;
+async function _sha256(plain) {
+  var enc = new TextEncoder().encode(plain);
+  return crypto.subtle.digest('SHA-256', enc);
+}
+function _rnd(n) {
+  var arr = new Uint8Array(n);
+  crypto.getRandomValues(arr);
+  return _b64url(arr);
 }
 
 function updateOdAccountBar() {
   var bar  = document.getElementById('od_account_bar');
   var name = document.getElementById('od_account_name');
-  var acc  = getOdAccount();
-  if (acc) {
-    bar.style.display = 'flex';
-    name.textContent  = '✅ ' + acc.username;
+  var tokenData = _loadStoredToken();
+  if (tokenData && tokenData.username) {
+    if (bar) { bar.style.display = 'flex'; }
+    if (name) name.textContent = '✅ ' + tokenData.username;
   } else {
-    bar.style.display = 'none';
+    if (bar) bar.style.display = 'none';
   }
-  // Activer le bouton si clientId configuré
   var cfg = getOdCfg();
-  document.getElementById('btnOneDrive').disabled = !cfg.clientId;
+  var btn = document.getElementById('btnOneDrive');
+  if (btn) btn.disabled = !cfg.clientId;
+}
+
+function _saveToken(tokenData) {
+  try { localStorage.setItem('cso_od_token', JSON.stringify(tokenData)); } catch(e){}
+}
+function _loadStoredToken() {
+  try {
+    var d = JSON.parse(localStorage.getItem('cso_od_token')||'null');
+    if (d && d.access_token && d.expiry > Date.now()) return d;
+    return null;
+  } catch(e){ return null; }
+}
+function _clearToken() {
+  try { localStorage.removeItem('cso_od_token'); } catch(e){}
+}
+
+async function odGetToken() {
+  /* 1. Retourner le token en cache s'il est encore valide */
+  var stored = _loadStoredToken();
+  if (stored) return stored.access_token;
+
+  var cfg = getOdCfg();
+  if (!cfg.clientId) throw new Error('ID d\'application manquant — cliquez sur ⚙️ Configuration');
+
+  var tenant    = cfg.tenant || OD_DEFAULTS.tenant;
+  var clientId  = cfg.clientId;
+  var redirectUri = 'https://login.microsoftonline.com/common/oauth2/nativeclient';
+  var scopes    = 'Files.ReadWrite User.Read offline_access';
+
+  /* 2. Générer PKCE */
+  var verifier  = _rnd(43);
+  var challenge = _b64url(await _sha256(verifier));
+  var state     = _rnd(8);
+
+  /* 3. Ouvrir popup d'autorisation */
+  var authUrl = 'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/authorize'
+    + '?client_id='    + encodeURIComponent(clientId)
+    + '&response_type=code'
+    + '&redirect_uri=' + encodeURIComponent(redirectUri)
+    + '&scope='        + encodeURIComponent(scopes)
+    + '&state='        + state
+    + '&code_challenge='        + challenge
+    + '&code_challenge_method=S256'
+    + '&prompt=select_account';
+
+  var popup = window.open(authUrl, 'mslogin',
+    'width=520,height=620,left=' + Math.round((screen.width-520)/2) +
+    ',top=' + Math.round((screen.height-620)/2));
+
+  if (!popup || popup.closed) throw new Error('Le popup de connexion a été bloqué. Autorisez les popups pour ce fichier.');
+
+  /* 4. Attendre le code dans l'URL du popup */
+  var code = await new Promise(function(resolve, reject) {
+    var tries = 0, max = 300; /* 5 min max */
+    var timer = setInterval(function() {
+      tries++;
+      try {
+        var url = popup.location.href;
+        if (url.indexOf('nativeclient') !== -1) {
+          var params = new URLSearchParams(url.split('?')[1]||url.split('#')[1]||'');
+          var c = params.get('code');
+          var err = params.get('error');
+          clearInterval(timer);
+          popup.close();
+          if (err) reject(new Error(params.get('error_description') || err));
+          else if (c) resolve(c);
+          else reject(new Error('Code d\'autorisation introuvable'));
+        }
+      } catch(e) { /* cross-origin — on continue d'attendre */ }
+      if (tries >= max) { clearInterval(timer); popup && popup.close(); reject(new Error('Délai de connexion dépassé')); }
+      if (popup.closed) { clearInterval(timer); reject(new Error('Fenêtre de connexion fermée')); }
+    }, 1000);
+  });
+
+  /* 5. Échanger le code contre un token */
+  var body = new URLSearchParams({
+    client_id:     clientId,
+    grant_type:    'authorization_code',
+    code:          code,
+    redirect_uri:  redirectUri,
+    code_verifier: verifier,
+    scope:         scopes
+  });
+  var resp = await fetch(
+    'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/token',
+    { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() }
+  );
+  var tokenResp = await resp.json();
+  if (!resp.ok) throw new Error(tokenResp.error_description || tokenResp.error || 'Erreur token');
+
+  /* 6. Récupérer le nom d'utilisateur */
+  var username = '';
+  try {
+    var me = await fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
+      {headers:{'Authorization':'Bearer '+tokenResp.access_token}});
+    var meData = await me.json();
+    username = meData.displayName || meData.mail || '';
+  } catch(e){}
+
+  /* 7. Sauvegarder en cache */
+  _saveToken({
+    access_token: tokenResp.access_token,
+    expiry: Date.now() + (tokenResp.expires_in - 60) * 1000,
+    username: username
+  });
+  updateOdAccountBar();
+  return tokenResp.access_token;
 }
 
 function toggleOdCfg() {
@@ -1711,7 +1963,7 @@ function saveOdCfg() {
   if (!clientId) {
     odCfgMsg('❌ Veuillez saisir un ID d\'application.', '#ffebee', '#c62828'); return;
   }
-  _msalApp = null;
+  _clearToken();
   localStorage.setItem(OD_CFG_KEY, JSON.stringify({ clientId: clientId, folder: folder, tenant: tenant }));
   odCfgMsg('✅ Configuration enregistrée ! Vous pouvez fermer cette section.', '#e8f5e9', '#2e7d32');
   updateOdAccountBar();
@@ -1875,10 +2127,9 @@ async function odLoadFile(fileId, fileName) {
 }
 
 function odLogout() {
-  var ms = getMsal(); if (!ms) return;
-  var acc = getOdAccount();
-  if (acc) ms.logoutPopup({ account: acc });
+  _clearToken();
   updateOdAccountBar();
+  odMsg('Déconnecté.', '#f5f5f5', '#555');
 }
 
 /* Surcharger openModal pour init OneDrive */
