@@ -1853,149 +1853,106 @@ function _clearToken() {
 }
 
 async function odGetToken() {
-  /* 1. Retourner le token en cache s'il est encore valide */
+  /* Token en cache encore valide ? */
   var stored = _loadStoredToken();
   if (stored) return stored.access_token;
 
   var cfg = getOdCfg();
   if (!cfg.clientId) throw new Error('ID d\'application manquant — cliquez sur ⚙️ Configuration');
 
-  var tenant    = cfg.tenant || OD_DEFAULTS.tenant;
-  var clientId  = cfg.clientId;
-  var redirectUri = 'https://login.microsoftonline.com/common/oauth2/nativeclient';
-  var scopes    = 'Files.ReadWrite User.Read offline_access';
+  var tenant   = cfg.tenant || OD_DEFAULTS.tenant;
+  var clientId = cfg.clientId;
+  var scopes   = 'Files.ReadWrite User.Read offline_access';
 
-  /* 2. Générer PKCE */
-  var verifier  = _rnd(43);
-  var challenge = _b64url(await _sha256(verifier));
-  var state     = _rnd(8);
-
-  /* 3. Ouvrir popup d'autorisation */
-  var authUrl = 'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/authorize'
-    + '?client_id='    + encodeURIComponent(clientId)
-    + '&response_type=code'
-    + '&redirect_uri=' + encodeURIComponent(redirectUri)
-    + '&scope='        + encodeURIComponent(scopes)
-    + '&state='        + state
-    + '&code_challenge='        + challenge
-    + '&code_challenge_method=S256'
-    + '&prompt=select_account';
-
-  var popup = window.open(authUrl, 'mslogin',
-    'width=520,height=620,left=' + Math.round((screen.width-520)/2) +
-    ',top=' + Math.round((screen.height-620)/2));
-
-  if (!popup || popup.closed) throw new Error('Le popup de connexion a été bloqué. Autorisez les popups pour ce fichier.');
-
-  /* 4. Attendre le code dans l'URL du popup */
-  var code = await new Promise(function(resolve, reject) {
-    var tries = 0, max = 300; /* 5 min max */
-    var timer = setInterval(function() {
-      tries++;
-      try {
-        var url = popup.location.href;
-        if (url.indexOf('nativeclient') !== -1) {
-          var params = new URLSearchParams(url.split('?')[1]||url.split('#')[1]||'');
-          var c = params.get('code');
-          var err = params.get('error');
-          clearInterval(timer);
-          popup.close();
-          if (err) reject(new Error(params.get('error_description') || err));
-          else if (c) resolve(c);
-          else reject(new Error('Code d\'autorisation introuvable'));
-        }
-      } catch(e) { /* cross-origin — on continue d'attendre */ }
-      if (tries >= max) { clearInterval(timer); popup && popup.close(); reject(new Error('Délai de connexion dépassé')); }
-      if (popup.closed) { clearInterval(timer); reject(new Error('Fenêtre de connexion fermée')); }
-    }, 1000);
-  });
-
-  /* 5. Échanger le code contre un token */
-  var body = new URLSearchParams({
-    client_id:     clientId,
-    grant_type:    'authorization_code',
-    code:          code,
-    redirect_uri:  redirectUri,
-    code_verifier: verifier,
-    scope:         scopes
-  });
-  var resp = await fetch(
-    'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/token',
-    { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() }
+  /* ── DEVICE CODE FLOW ──
+     1. Demander un device_code */
+  var dcResp = await fetch(
+    'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/devicecode',
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ client_id: clientId, scope: scopes }).toString()
+    }
   );
-  var tokenResp = await resp.json();
-  if (!resp.ok) throw new Error(tokenResp.error_description || tokenResp.error || 'Erreur token');
+  if (!dcResp.ok) {
+    var e = await dcResp.json();
+    throw new Error(e.error_description || e.error || 'Erreur devicecode');
+  }
+  var dc = await dcResp.json();
 
-  /* 6. Récupérer le nom d'utilisateur */
-  var username = '';
-  try {
-    var me = await fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
-      {headers:{'Authorization':'Bearer '+tokenResp.access_token}});
-    var meData = await me.json();
-    username = meData.displayName || meData.mail || '';
-  } catch(e){}
+  /* 2. Afficher le code à l\'utilisateur */
+  odMsg(
+    '<div style="font-size:13px;line-height:1.8;">'
+    + '📱 <strong>Étape 1 :</strong> Ouvrez <a href="' + dc.verification_uri + '" target="_blank" style="color:#0078d4;font-weight:bold;">' + dc.verification_uri + '</a><br>'
+    + '🔑 <strong>Étape 2 :</strong> Saisissez le code : '
+    + '<span style="font-size:20px;font-weight:bold;letter-spacing:4px;color:#0078d4;background:#e3f2fd;padding:2px 10px;border-radius:6px;">' + dc.user_code + '</span><br>'
+    + '<span style="font-size:11px;color:#888;">⏳ Ce code est valable ' + Math.round(dc.expires_in/60) + ' minutes.</span>'
+    + '</div>',
+    '#e3f2fd', '#1565c0'
+  );
 
-  /* 7. Sauvegarder en cache */
-  _saveToken({
-    access_token: tokenResp.access_token,
-    expiry: Date.now() + (tokenResp.expires_in - 60) * 1000,
-    username: username
+  /* 3. Copier le code dans le presse-papier automatiquement */
+  try { await navigator.clipboard.writeText(dc.user_code); } catch(e){}
+
+  /* 4. Ouvrir la page d\'authentification dans un nouvel onglet */
+  window.open(dc.verification_uri, '_blank');
+
+  /* 5. Poller jusqu\'à ce que l\'utilisateur se connecte */
+  var interval = (dc.interval || 5) * 1000;
+  var expiry   = Date.now() + dc.expires_in * 1000;
+
+  return new Promise(function(resolve, reject) {
+    var timer = setInterval(async function() {
+      if (Date.now() > expiry) {
+        clearInterval(timer);
+        reject(new Error('Délai expiré — relancez la sauvegarde.'));
+        return;
+      }
+      try {
+        var tResp = await fetch(
+          'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/token',
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+              client_id:  clientId,
+              grant_type: 'urn:ietf:params:oauth:grant-type:device_code',
+              device_code: dc.device_code
+            }).toString()
+          }
+        );
+        var tok = await tResp.json();
+        if (tok.access_token) {
+          clearInterval(timer);
+          /* Récupérer le nom d\'utilisateur */
+          var username = '';
+          try {
+            var me = await fetch('https://graph.microsoft.com/v1.0/me?$select=displayName,mail',
+              { headers: { 'Authorization': 'Bearer ' + tok.access_token } });
+            var meData = await me.json();
+            username = meData.displayName || meData.mail || '';
+          } catch(e){}
+          _saveToken({
+            access_token: tok.access_token,
+            expiry: Date.now() + (tok.expires_in - 60) * 1000,
+            username: username
+          });
+          updateOdAccountBar();
+          odMsg('✅ Connecté en tant que <strong>' + escH(username) + '</strong>. Envoi en cours…', '#e8f5e9', '#2e7d32');
+          resolve(tok.access_token);
+        } else if (tok.error === 'authorization_pending') {
+          /* Normal — l\'utilisateur n\'a pas encore validé */
+        } else if (tok.error === 'slow_down') {
+          interval += 5000;
+        } else if (tok.error) {
+          clearInterval(timer);
+          reject(new Error(tok.error_description || tok.error));
+        }
+      } catch(e) { /* réseau — on réessaie */ }
+    }, interval);
   });
-  updateOdAccountBar();
-  return tokenResp.access_token;
 }
 
-function toggleOdCfg() {
-  var el = document.getElementById('od_cfg');
-  el.style.display = el.style.display === 'none' ? 'block' : 'none';
-  // Pré-remplir champs
-  var cfg = getOdCfg();
-  document.getElementById('od_clientid').value = cfg.clientId || '';
-  document.getElementById('od_folder').value   = cfg.folder   || OD_DEFAULTS.folder;
-  document.getElementById('od_tenant').value   = cfg.tenant   || OD_DEFAULTS.tenant;
-}
-
-function saveOdCfg() {
-  var clientId = document.getElementById('od_clientid').value.trim();
-  var folder   = document.getElementById('od_folder').value.trim()   || OD_DEFAULTS.folder;
-  var tenant   = document.getElementById('od_tenant').value.trim()   || OD_DEFAULTS.tenant;
-  var msgEl    = document.getElementById('od_cfg_msg');
-  if (!clientId) {
-    odCfgMsg('❌ Veuillez saisir un ID d\'application.', '#ffebee', '#c62828'); return;
-  }
-  _clearToken();
-  localStorage.setItem(OD_CFG_KEY, JSON.stringify({ clientId: clientId, folder: folder, tenant: tenant }));
-  odCfgMsg('✅ Configuration enregistrée ! Vous pouvez fermer cette section.', '#e8f5e9', '#2e7d32');
-  updateOdAccountBar();
-}
-
-function odCfgMsg(txt, bg, col) {
-  var el = document.getElementById('od_cfg_msg');
-  el.textContent = txt; el.style.cssText = 'display:block;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;background:'+bg+';color:'+col+';';
-}
-
-function odMsg(txt, bg, col) {
-  var el = document.getElementById('od_msg');
-  el.innerHTML = txt; el.style.cssText = 'display:block;font-size:12px;margin-top:6px;padding:8px 10px;border-radius:6px;background:'+bg+';color:'+col+';';
-}
-
-async function odGetToken() {
-  var ms  = getMsal();
-  if (!ms) throw new Error('Configuration Azure AD manquante. Cliquez sur "⚙️ Configuration".');
-  var req = { scopes: ['Files.ReadWrite', 'User.Read'] };
-  var acc = getOdAccount();
-  if (!acc) {
-    await ms.loginPopup(req);
-    acc = ms.getAllAccounts()[0];
-  }
-  try {
-    var r = await ms.acquireTokenSilent({ ...req, account: acc });
-    return r.accessToken;
-  } catch(e) {
-    var r = await ms.acquireTokenPopup({ ...req, account: acc });
-    return r.accessToken;
-  }
-}
 
 /* ENREGISTRER SUR ONEDRIVE */
 async function saveToOneDrive() {
