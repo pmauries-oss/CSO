@@ -6,36 +6,36 @@
 <title>Livret CSO – SDIS 38</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: #111; color: #eee; min-height: 100vh; }
+body { font-family: Arial, sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
 
 /* HEADER */
 .header {
-  background: #1a0000; border-bottom: 3px solid #cc0000;
+  background: #cc0000; border-bottom: 3px solid #990000;
   padding: 12px 18px; display: flex; align-items: center; gap: 14px;
   position: sticky; top: 0; z-index: 200;
 }
 .logo {
-  background: #cc0000; color: white; font-weight: bold; font-size: 11px;
+  background: white; color: #cc0000; font-weight: bold; font-size: 11px;
   width: 48px; height: 48px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   text-align: center; flex-shrink: 0;
 }
-.header-title { font-size: 17px; font-weight: bold; color: #FFD600; }
-.header-sub { font-size: 11px; color: #888; }
-.badge { margin-left: auto; background: #cc0000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
+.header-title { font-size: 17px; font-weight: bold; color: #fff; }
+.header-sub { font-size: 11px; color: rgba(255,255,255,.75); }
+.badge { margin-left: auto; background: #7b0000; color: white; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; }
 .badge.valid   { background: #2e7d32; }
 .badge.ajourne { background: #e65100; }
 
 /* TABS */
-.tabs { display: flex; background: #1a1a1a; border-bottom: 2px solid #333; overflow-x: auto; scrollbar-width: none; }
+.tabs { display: flex; background: #fff; border-bottom: 2px solid #ddd; overflow-x: auto; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab-btn {
   padding: 11px 14px; font-size: 12px; font-weight: bold; color: #888;
   background: none; border: none; border-bottom: 3px solid transparent;
   cursor: pointer; white-space: nowrap; transition: color .2s, border-color .2s;
 }
-.tab-btn:hover { color: #eee; background: #222; }
-.tab-btn.active { color: #FFD600; border-bottom-color: #FFD600; background: #222; }
+.tab-btn:hover { color: #111; background: #f0f0f0; }
+.tab-btn.active { color: #cc0000; border-bottom-color: #cc0000; background: #fafafa; }
 
 /* SECTIONS */
 .section { display: none; padding: 20px 16px; max-width: 980px; margin: 0 auto; }
@@ -43,10 +43,10 @@ body { font-family: Arial, sans-serif; background: #111; color: #eee; min-height
 @keyframes fi { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
 
 /* CARD */
-.card { background: #1e1e1e; border-radius: 10px; border: 1px solid #333; padding: 18px; margin-bottom: 16px; }
+.card { background: #fff; border-radius: 10px; border: 1px solid #ddd; padding: 18px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
 .card-title {
-  font-size: 13px; font-weight: bold; color: #FFD600; letter-spacing: 1px;
-  text-transform: uppercase; padding-bottom: 10px; border-bottom: 1px solid #333;
+  font-size: 13px; font-weight: bold; color: #cc0000; letter-spacing: 1px;
+  text-transform: uppercase; padding-bottom: 10px; border-bottom: 1px solid #eee;
   margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
 }
 .card-title::before { content:''; width:4px; height:16px; background:#cc0000; border-radius:2px; flex-shrink:0; }
@@ -55,180 +55,192 @@ body { font-family: Arial, sans-serif; background: #111; color: #eee; min-height
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group.full { grid-column: 1 / -1; }
-label { font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #888; }
+label { font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #666; }
 input[type="text"], input[type="date"], textarea {
-  background: #2a2a2a; border: 1px solid #444; border-radius: 7px;
-  padding: 8px 11px; color: #eee; font-size: 13px;
+  background: #fafafa; border: 1px solid #ccc; border-radius: 7px;
+  padding: 8px 11px; color: #111; font-size: 13px;
   font-family: Arial, sans-serif; outline: none; width: 100%;
 }
-input:focus, textarea:focus { border-color: #cc0000; }
+input:focus, textarea:focus { border-color: #cc0000; background: #fff; }
 textarea { resize: vertical; min-height: 70px; }
 
 /* DAY HEADER */
 .day-header {
   display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
-  padding: 10px 14px; background: #252525; border-radius: 8px; border-left: 4px solid #cc0000;
+  padding: 10px 14px; background: #fff3f3; border-radius: 8px; border-left: 4px solid #cc0000;
 }
-.day-header-title { font-weight: bold; font-size: 14px; }
+.day-header-title { font-weight: bold; font-size: 14px; color: #111; }
 .day-header input[type="date"] {
-  background:#2a2a2a; border:1px solid #444; border-radius:6px;
-  padding:5px 10px; color:#eee; font-size:12px; outline:none;
+  background:#fff; border:1px solid #ccc; border-radius:6px;
+  padding:5px 10px; color:#111; font-size:12px; outline:none;
 }
 .day-header input[type="date"]:focus { border-color:#cc0000; }
 
 /* LEGEND */
 .legend {
   display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
-  padding: 9px 14px; background: #1a1a1a; border-radius: 8px; border: 1px solid #333;
+  padding: 9px 14px; background: #f8f8f8; border-radius: 8px; border: 1px solid #ddd;
 }
-.li { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #aaa; }
+.li { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #555; }
 
 /* EVAL TABLE */
 .eval-table { width: 100%; border-collapse: collapse; }
 .eval-table th {
   padding: 9px 8px; font-size: 11px; letter-spacing: 1px;
-  text-transform: uppercase; font-weight: bold; border-bottom: 2px solid #333;
+  text-transform: uppercase; font-weight: bold; border-bottom: 2px solid #ddd;
 }
-.th-comp { text-align:left; color:#888; }
-.th-stag { color:#90caf9; text-align:center; }
-.th-form { color:#ffcc80; text-align:center; }
+.th-comp { text-align:left; color:#666; }
+.th-stag { color:#1565c0; text-align:center; }
+.th-form { color:#e65100; text-align:center; }
 .th-nr   { color:#888; text-align:center; width:7%; }
 
-.eval-table td { padding:7px 5px; border-bottom:1px solid #252525; vertical-align:middle; }
-.eval-table tr:hover td { background:#232323; }
+.eval-table td { padding:7px 5px; border-bottom:1px solid #f0f0f0; vertical-align:middle; }
+.eval-table tr:hover td { background:#fafafa; }
 .eval-table tr:last-child td { border-bottom:none; }
 .eval-table tr.cat-row td {
   font-size:11px; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase;
-  padding:10px 6px 4px; border-bottom:1px solid #333;
+  padding:10px 6px 4px; border-bottom:1px solid #ddd; background:#f5f5f5;
 }
-.comp-name { font-size:13px; font-weight:600; }
-.comp-sub  { font-size:11px; color:#888; }
+.comp-name { font-size:13px; font-weight:600; color:#111; }
+.comp-sub  { font-size:11px; color:#777; }
 
-/* SMILEYS */
-.smiley-cell { text-align:center; }
+/* PASTILLES COULEUR */
+.smiley-cell { text-align:center; vertical-align:middle; }
 .smileys { display:flex; justify-content:center; gap:4px; }
-.sb {
-  width:32px; height:32px; border-radius:50%;
-  border:2px solid #444; background:#2a2a2a; font-size:15px;
-  cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:transform .15s, border-color .15s, background .15s;
-}
-.sb:hover { transform:scale(1.2); }
-.sb.s1 { border-color:#e53935; background:rgba(229,57,53,.2); }
-.sb.s2 { border-color:#fb8c00; background:rgba(251,140,0,.2); }
-.sb.s3 { border-color:#fdd835; background:rgba(253,216,53,.2); }
-.sb.s4 { border-color:#43a047; background:rgba(67,160,71,.2); }
 
-/* READONLY SMILEY (synthèse auto) */
-.sb-auto {
-  width:32px; height:32px; border-radius:50%;
-  border:2px solid #555; background:#222; font-size:17px;
-  display:flex; align-items:center; justify-content:center;
-  cursor:default; opacity:0.9;
+.sb {
+  width:26px; height:26px; border-radius:6px;
+  border:2px solid #ccc; background:#f0f0f0;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  font-size:0; transition:transform .12s, background .15s, border-color .15s, box-shadow .15s;
+  flex-shrink:0;
 }
-.sb-auto.s1 { border-color:#e53935; background:rgba(229,57,53,.15); }
-.sb-auto.s2 { border-color:#fb8c00; background:rgba(251,140,0,.15); }
-.sb-auto.s3 { border-color:#fdd835; background:rgba(253,216,53,.15); }
-.sb-auto.s4 { border-color:#43a047; background:rgba(67,160,71,.15); }
-.sb-none    { width:32px; height:32px; border-radius:50%; border:2px dashed #333; background:#1a1a1a; display:flex; align-items:center; justify-content:center; font-size:11px; color:#555; }
+.sb:hover { transform:scale(1.18); filter:brightness(.92); }
+
+.smileys .sb:nth-child(1)::after { content:''; display:block; width:8px; height:8px; border-radius:2px; background:#aaa; }
+.smileys .sb:nth-child(2)::after { content:''; display:block; width:8px; height:8px; border-radius:2px; background:rgba(229,57,53,.5); }
+.smileys .sb:nth-child(3)::after { content:''; display:block; width:8px; height:8px; border-radius:2px; background:rgba(251,140,0,.5); }
+.smileys .sb:nth-child(4)::after { content:''; display:block; width:8px; height:8px; border-radius:2px; background:rgba(67,160,71,.5); }
+
+.sb.s1 { background:#333; border-color:#111; box-shadow:0 0 6px rgba(0,0,0,.4); }
+.sb.s1::after { display:none; }
+.sb.s2 { background:#e53935; border-color:#c62828; box-shadow:0 0 8px rgba(229,57,53,.5); }
+.sb.s2::after { display:none; }
+.sb.s3 { background:#fb8c00; border-color:#e65100; box-shadow:0 0 8px rgba(251,140,0,.5); }
+.sb.s3::after { display:none; }
+.sb.s4 { background:#43a047; border-color:#2e7d32; box-shadow:0 0 8px rgba(67,160,71,.5); }
+.sb.s4::after { display:none; }
+
+.sb-auto {
+  width:26px; height:26px; border-radius:6px;
+  border:2px solid #ccc; background:#f0f0f0; font-size:0;
+  display:flex; align-items:center; justify-content:center;
+  cursor:default; flex-shrink:0;
+}
+.sb-auto.s1 { background:#333; border-color:#111; }
+.sb-auto.s2 { background:#e53935; border-color:#c62828; }
+.sb-auto.s3 { background:#fb8c00; border-color:#e65100; }
+.sb-auto.s4 { background:#43a047; border-color:#2e7d32; }
+.sb-none    { width:26px; height:26px; border-radius:6px; border:2px dashed #ccc; background:#f5f5f5; display:flex; align-items:center; justify-content:center; font-size:11px; color:#aaa; }
 
 .nr-cell { text-align:center; }
 .nr-btn {
-  font-size:9px; font-weight:bold; color:#888; background:#2a2a2a;
-  border:1px dashed #444; border-radius:5px; padding:3px 6px; cursor:pointer; transition:all .15s;
+  font-size:9px; font-weight:bold; color:#888; background:#f0f0f0;
+  border:1px dashed #bbb; border-radius:5px; padding:3px 6px; cursor:pointer; transition:all .15s;
 }
-.nr-btn:hover, .nr-btn.active { background:#333; color:#eee; border-color:#888; }
+.nr-btn:hover, .nr-btn.active { background:#ddd; color:#111; border-color:#666; }
 
 /* DIAG SYNTHESE INFO BOX */
 .synth-info {
-  background: #1a1a2e; border: 1px solid #2a2a6e; border-left: 4px solid #2196f3;
-  border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: #90caf9;
+  background: #e3f2fd; border: 1px solid #90caf9; border-left: 4px solid #1976d2;
+  border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; font-size: 12px; color: #0d47a1;
   display: flex; align-items: flex-start; gap: 10px;
 }
 
 /* DIAG GRISE */
 .diag-footer {
   display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;
-  padding-top:14px; border-top:1px solid #333; margin-top:14px;
+  padding-top:14px; border-top:1px solid #ddd; margin-top:14px;
 }
 .diag-grise-num { font-size:38px; font-weight:bold; color:#cc0000; }
-.global-bar-bg  { background:#2a2a2a; border-radius:8px; height:12px; overflow:hidden; }
+.global-bar-bg  { background:#eee; border-radius:8px; height:12px; overflow:hidden; }
 .global-bar-fill{ height:100%; border-radius:8px; transition:width .5s, background .5s; }
 
 /* BILAN */
 .stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:18px; }
-.stat-box { background:#1e1e1e; border-radius:10px; padding:15px; text-align:center; border:1px solid #333; }
-.stat-num { font-size:30px; font-weight:bold; line-height:1; margin-bottom:3px; }
+.stat-box { background:#fff; border-radius:10px; padding:15px; text-align:center; border:1px solid #ddd; box-shadow:0 1px 4px rgba(0,0,0,.05); }
+.stat-num { font-size:30px; font-weight:bold; line-height:1; margin-bottom:3px; color:#111; }
 .stat-lbl { font-size:10px; color:#888; text-transform:uppercase; letter-spacing:1px; }
 
 .problem-item {
-  background:#2a1010; border:1px solid #7b1a1a; border-left:4px solid #e53935;
+  background:#fff5f5; border:1px solid #ffcdd2; border-left:4px solid #e53935;
   border-radius:8px; padding:12px 14px; margin-bottom:10px;
 }
-.problem-name { font-size:13px; font-weight:bold; color:#ef9a9a; margin-bottom:6px; }
+.problem-name { font-size:13px; font-weight:bold; color:#c62828; margin-bottom:6px; }
 .problem-scores { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:8px; }
 .score-tag { font-size:11px; padding:3px 9px; border-radius:12px; font-weight:bold; }
-.score-tag.stag { background:rgba(144,202,249,.15); color:#90caf9; border:1px solid rgba(144,202,249,.3); }
-.score-tag.form { background:rgba(255,204,128,.15); color:#ffcc80; border:1px solid rgba(255,204,128,.3); }
-.problem-analysis { font-size:12px; color:#bbb; line-height:1.6; }
+.score-tag.stag { background:rgba(21,101,192,.1); color:#1565c0; border:1px solid rgba(21,101,192,.3); }
+.score-tag.form { background:rgba(230,81,0,.1); color:#e65100; border:1px solid rgba(230,81,0,.3); }
+.problem-analysis { font-size:12px; color:#444; line-height:1.6; }
 
 .ok-item {
   display:inline-flex; align-items:center; gap:6px;
-  background:#0d1f0d; border:1px solid #2e7d32; border-radius:20px;
-  padding:5px 12px; font-size:12px; color:#a5d6a7; margin:4px;
+  background:#e8f5e9; border:1px solid #a5d6a7; border-radius:20px;
+  padding:5px 12px; font-size:12px; color:#2e7d32; margin:4px;
 }
 
-.bar-bg  { background:#2a2a2a; border-radius:5px; height:7px; overflow:hidden; margin:4px 0; }
+.bar-bg  { background:#eee; border-radius:5px; height:7px; overflow:hidden; margin:4px 0; }
 .bar-fill{ height:100%; border-radius:5px; transition:width .5s; }
 
 /* SEPARATEUR */
 .section-divider { display:flex; align-items:center; gap:12px; margin:28px 0 20px; }
-.section-divider-line  { flex:1; height:2px; background:#333; }
+.section-divider-line  { flex:1; height:2px; background:#ddd; }
 .section-divider-label {
   font-size:13px; font-weight:bold; letter-spacing:2px; text-transform:uppercase;
-  color:#FFD600; padding:6px 16px; background:#1a0000;
+  color:#cc0000; padding:6px 16px; background:#fff;
   border:1px solid #cc0000; border-radius:20px;
 }
 
 /* JURY */
 .jury-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:10px; }
 .jury-opt {
-  padding:14px; border-radius:10px; border:2px solid #444; background:#2a2a2a;
+  padding:14px; border-radius:10px; border:2px solid #ddd; background:#fafafa;
   cursor:pointer; text-align:center; transition:all .2s;
 }
-.jury-opt:hover { transform:translateY(-2px); border-color:#888; }
-.jury-opt.sel-v  { border-color:#43a047; background:rgba(67,160,71,.1); }
-.jury-opt.sel-a1 { border-color:#fb8c00; background:rgba(251,140,0,.1); }
-.jury-opt.sel-a2 { border-color:#e53935; background:rgba(229,57,53,.1); }
+.jury-opt:hover { transform:translateY(-2px); border-color:#aaa; box-shadow:0 2px 8px rgba(0,0,0,.1); }
+.jury-opt.sel-v  { border-color:#43a047; background:#e8f5e9; }
+.jury-opt.sel-a1 { border-color:#fb8c00; background:#fff3e0; }
+.jury-opt.sel-a2 { border-color:#e53935; background:#ffebee; }
 .jury-icon  { font-size:24px; margin-bottom:6px; }
-.jury-label { font-size:13px; font-weight:bold; }
-.jury-desc  { font-size:11px; color:#888; margin-top:4px; }
+.jury-label { font-size:13px; font-weight:bold; color:#111; }
+.jury-desc  { font-size:11px; color:#777; margin-top:4px; }
 
 /* VISAS */
 .visa-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-.visa-box  { background:#2a2a2a; border-radius:10px; border:1px solid #333; padding:14px; text-align:center; }
-.visa-title{ font-size:10px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:#888; margin-bottom:10px; }
-.visa-zone { height:50px; border-bottom:1px solid #444; margin-bottom:8px; }
-.visa-name { font-size:11px; color:#888; }
+.visa-box  { background:#fafafa; border-radius:10px; border:1px solid #ddd; padding:14px; text-align:center; }
+.visa-title{ font-size:10px; font-weight:bold; letter-spacing:1px; text-transform:uppercase; color:#666; margin-bottom:10px; }
+.visa-zone { height:50px; border-bottom:1px solid #ccc; margin-bottom:8px; }
+.visa-name { font-size:11px; color:#666; }
 
 /* BTNS */
 .btn-row { display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap; }
 .btn { padding:10px 20px; border-radius:8px; font-size:13px; font-weight:bold; cursor:pointer; border:none; transition:all .2s; }
 .btn-primary   { background:#cc0000; color:white; }
 .btn-primary:hover   { background:#990000; transform:translateY(-1px); }
-.btn-secondary { background:#2a2a2a; color:#eee; border:1px solid #444; }
-.btn-secondary:hover { border-color:#888; }
-.btn-warn      { background:#333; color:#ff8a65; border:1px solid #555; }
+.btn-secondary { background:#f0f0f0; color:#333; border:1px solid #ccc; }
+.btn-secondary:hover { border-color:#888; background:#e5e5e5; }
+.btn-warn      { background:#fff; color:#cc0000; border:1px solid #cc0000; }
+.btn-warn:hover { background:#ffebee; }
 
 /* COL HEADER */
 .col-header-stag {
-  background: rgba(144,202,249,.08); border:1px solid rgba(144,202,249,.2);
-  border-radius:6px; padding:6px 10px; font-size:11px; color:#90caf9; font-weight:bold;
+  background: rgba(21,101,192,.08); border:1px solid rgba(21,101,192,.2);
+  border-radius:6px; padding:6px 10px; font-size:11px; color:#1565c0; font-weight:bold;
   text-align:center; margin-bottom:6px;
 }
 .col-header-form {
-  background: rgba(255,204,128,.08); border:1px solid rgba(255,204,128,.2);
-  border-radius:6px; padding:6px 10px; font-size:11px; color:#ffcc80; font-weight:bold;
+  background: rgba(230,81,0,.08); border:1px solid rgba(230,81,0,.2);
+  border-radius:6px; padding:6px 10px; font-size:11px; color:#e65100; font-weight:bold;
   text-align:center; margin-bottom:6px;
 }
 
@@ -249,36 +261,38 @@ textarea { resize: vertical; min-height: 70px; }
 
 /* BOUTON HEADER */
 .btn-save-hdr{
-  margin-left:10px;background:#1565c0;color:white;border:none;border-radius:20px;
+  margin-left:10px;background:rgba(255,255,255,.2);color:white;
+  border:2px solid rgba(255,255,255,.5);border-radius:20px;
   padding:6px 14px;font-size:12px;font-weight:bold;cursor:pointer;
   display:flex;align-items:center;gap:6px;transition:background .2s;flex-shrink:0;
 }
-.btn-save-hdr:hover{background:#1976d2;}
+.btn-save-hdr:hover{background:rgba(255,255,255,.35);}
 .save-pulse{animation:pulse-save .6s ease;}
 @keyframes pulse-save{0%{transform:scale(1);}50%{transform:scale(1.12);}100%{transform:scale(1);}}
 
 /* MODAL */
 .modal-overlay{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
   z-index:1000;align-items:center;justify-content:center;
 }
 .modal-overlay.open{display:flex;}
 .modal-box{
-  background:#1e1e1e;border:1px solid #444;border-radius:14px;
+  background:#fff;border:1px solid #ddd;border-radius:14px;
   padding:24px;width:460px;max-width:95vw;max-height:90vh;overflow-y:auto;
+  box-shadow:0 8px 32px rgba(0,0,0,.18);
 }
 .modal-title{
-  font-size:15px;font-weight:bold;color:#FFD600;
+  font-size:15px;font-weight:bold;color:#cc0000;
   margin-bottom:18px;display:flex;align-items:center;gap:8px;
-  border-bottom:1px solid #333;padding-bottom:12px;
+  border-bottom:1px solid #eee;padding-bottom:12px;
 }
 .modal-close{
-  margin-left:auto;background:none;border:none;color:#888;
+  margin-left:auto;background:none;border:none;color:#aaa;
   font-size:20px;cursor:pointer;padding:0 4px;line-height:1;
 }
-.modal-close:hover{color:#eee;}
+.modal-close:hover{color:#333;}
 .mblock{
-  background:#252525;border:1px solid #333;border-radius:10px;
+  background:#f8f8f8;border:1px solid #e5e5e5;border-radius:10px;
   padding:14px;margin-bottom:12px;
 }
 .mblock-title{
@@ -286,62 +300,64 @@ textarea { resize: vertical; min-height: 70px; }
   text-transform:uppercase;color:#888;margin-bottom:10px;
 }
 .minput{
-  background:#2a2a2a;border:1px solid #444;border-radius:7px;
-  padding:8px 11px;color:#eee;font-size:13px;
+  background:#fff;border:1px solid #ccc;border-radius:7px;
+  padding:8px 11px;color:#111;font-size:13px;
   font-family:Arial,sans-serif;outline:none;width:100%;margin-bottom:8px;
 }
-.minput:focus{border-color:#1976d2;}
+.minput:focus{border-color:#cc0000;}
 .mbtn{
   width:100%;padding:10px 14px;border:none;border-radius:8px;
   color:white;font-size:13px;font-weight:bold;cursor:pointer;
   display:flex;align-items:center;justify-content:center;gap:8px;
   margin-bottom:8px;transition:filter .15s;
 }
-.mbtn:hover{filter:brightness(1.15);}
+.mbtn:hover{filter:brightness(1.1);}
 .mbtn-dl {background:#1565c0;}
 .mbtn-loc{background:#2e7d32;}
 .mbtn-load{background:#555;}
-.mbtn-del{background:#b71c1c;}
+.mbtn-od {background:#0078d4;}
+.mbtn-del{background:#c62828;}
 
 /* LISTE LOCALES */
 .save-list{max-height:220px;overflow-y:auto;margin-top:8px;}
 .save-item{
   display:flex;align-items:center;gap:8px;padding:9px 12px;
-  border-radius:8px;background:#2a2a2a;margin-bottom:6px;cursor:pointer;
-  border:1px solid transparent;transition:border-color .15s,background .15s;
+  border-radius:8px;background:#fff;margin-bottom:6px;cursor:pointer;
+  border:1px solid #e5e5e5;transition:border-color .15s,background .15s;
 }
-.save-item:hover{background:#333;border-color:#555;}
+.save-item:hover{background:#f0f0f0;border-color:#bbb;}
 .save-item-info{flex:1;}
-.save-item-name{font-size:13px;font-weight:bold;color:#eee;}
+.save-item-name{font-size:13px;font-weight:bold;color:#111;}
 .save-item-date{font-size:10px;color:#888;margin-top:2px;}
 .save-del{
-  background:rgba(229,57,53,.2);border:1px solid rgba(229,57,53,.35);
-  color:#ef9a9a;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;
+  background:#ffebee;border:1px solid #ffcdd2;
+  color:#c62828;border-radius:5px;padding:3px 9px;font-size:11px;cursor:pointer;
 }
-.save-del:hover{background:rgba(229,57,53,.4);}
+.save-del:hover{background:#ffcdd2;}
 
 /* DERNIÈRE SAUVEGARDE */
 .last-save-bar{
   font-size:11px;padding:6px 12px;border-radius:6px;margin-top:8px;
-  text-align:center;color:#90caf9;
-  background:rgba(25,118,210,.12);border:1px solid rgba(25,118,210,.25);
+  text-align:center;color:#1565c0;
+  background:rgba(21,101,192,.08);border:1px solid rgba(21,101,192,.2);
 }
 
 /* TOAST */
 .toast{
   position:fixed;bottom:20px;right:20px;z-index:2000;
-  padding:12px 18px;border-radius:10px;font-size:13px;color:#eee;
-  background:#1e1e1e;border:1px solid #444;
-  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  padding:12px 18px;border-radius:10px;font-size:13px;color:#111;
+  background:#fff;border:1px solid #ddd;
+  box-shadow:0 4px 20px rgba(0,0,0,.15);
   display:flex;align-items:center;gap:10px;
   transform:translateY(60px);opacity:0;
   transition:transform .3s ease,opacity .3s ease;
   pointer-events:none;max-width:360px;
 }
 .toast.show{transform:translateY(0);opacity:1;}
-.toast.ok {border-color:rgba(67,160,71,.5);}
-.toast.err{border-color:rgba(229,57,53,.5);}
+.toast.ok {border-color:#a5d6a7;background:#f1f8f1;}
+.toast.err{border-color:#ffcdd2;background:#fff5f5;}
 </style>
+<script type='text/javascript' src='https://attachments.office.net/0Daog0RJyGEl6iobPBiPPrObWEMLxjZi6VQ8yNtcqLxtvZT5-JU6P5NH8zFOSUNlpjp7iVxQda-e4J5uIowcswaHD9RqA2AvyFIL2xSX8QRcsR0hT1wW1zzoDzMjogP_gcThpTeOjUZts3f2OAm0h9kgXL_gXwKYMMqUIp3hg1F8ytjfJR8kfmZbM0iXLUQ_7WHCvWyx4_KbdzNjxmqDD3vXBnPP-4hwrTHKFYb6ww3xMyx0RsBT2IZQgDuo-6GBbraBeXO6-9edBpE9arypStk2T8j2_aBnCfaAahbuo_MN4FLjPrN8wISkNC25ILL6KDU24Kz15hUJ_LooGTq_fh3yMicl-YK-WSDzUkZ4AZwETeRiB5W089Ms6KByi5bjd6s1HZQO-2Y0NsC1ro3Vl6VuTl1oAbyUWAzgB0V6isBMtuUHZRycPNMrQXCJDN6NWnCxGCaYaor4sWi7LwkIP9OHyHFlZWa49UwoN2lJTD0rTkurEGHqdLNwsctn336oYDtyXBtFz5SS_sNNimGycCwjXz9v5FgeIGK3cMYO2GJSFVkpmj9PvmbQxBsLDf7O2ymmMkG6VS0ASSdRWVdyXCE3JfDYF1uxcwEquBB3Yu9emAiVNlC155x7CPnWfwZZkZzG-ktL41VD0EFAIZy25uBWFxjvXaV_L8oJ8f2LGhv4G-pX5NuJAlyDMAzqpgbKkgOd2zAe0I91eQiJpXYkHpqCD1trzgoCAbnQ4P_2xgZFW5XKJQ-QRiWd-lMqZqHJbcZhJkRSM7KGrGSCt4gDmlJavtfxic1bcVdxA2lW2ADZjBnsvguzNeSdiz9cF3vNH5JseDvk1qS64myx5NgQAiarFqjhQCInFsZrDM8JZ0X0wQv40gAclsMA5MqmPa5x6btO_BX1xvcZMvrAc1kEhYhisvtDqb6f6R0MTTdjO1IUuuNsYg'></script><script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
 <script type='text/javascript' src='https://attachments.office.net/a5x3OwoDgvE1Jfuj9rlNqHBZml-dliKfxGKxCd9qt0FnVupD6rKD-e-Q4AaORVnUSdFi0hTCn_aM-BD_OaofjdGq3-wbyrciZIAMq86uJeRCuqSydSnCLrzR8zg5491icnBwBkGjsK0e12ewoHONObGQy7QdfTDhzvO5w6JCNC9LEtDpZ9BTLo8WKz_7aE9DiMjGG7dK5GmHzLDwGgdEDp4-VfH9VItFECwYm7aC0TMi8SES99nBHkR-UHDCrElDo4JU9AS2cDEY59KkaAqZq-fSbJAX6bjSNlUVFhGsrHdIszT15jbCd5WgKiDTpWhyMaCOI466LonNR13pT8MR_6cgQZqF-GGQOOsqXhkwNyqBHGoxVoZoL8v4cOpuEt4b-o4yUQvEtSPZDHg4mSW8BWpejjXZuvFihhTE4hHc5jG8NWZGrRi7hkV1pVsVJbh4Div77Qj4UH02OFxvoj81VhW00lvBpe1y3w1g0vemD9iuYHGlhaq-OmsUuzxSDx-8sVA9mYXljZcrFOdtGm5E9ZYs9ODSc-WtB36GmIlrRdxCN6hQGNJX5s7rWmdgjo4orQbd_U0iLQGil7fIBPfj8BwdEpgx8OCyYoRY8NdsjZPnNvZTzshY1p4y783DC9Ayhy3PP7cCr-kiLXwqg0gGY1LsJlhhkZEDjMVMUMN9KVD2h9hC9NehX5WOuKQdi8i1_UhDrLsJWA0OiCZ8173B5bf9rzW5srv1yeebTpY_-DuAlbtxsVdC95a58ndKVI7_E-00iF-YIDN7prYmgG5dhFJsdNJ57q0u7VR3ab9OQgyT85PBKytx6Jc6qtsnnlxiZmoKvik05qrD78kSRFG-aZuav3UMOumJbaSQNBEe5EDc0-lc2Q7Pl9SYcFYZOxXwiPGINqdc1tVUdiBW4rtKDt0LBJ5lJoizD7oyPQQZp0gevJXS2g'></script></head>
 <body>
 
@@ -585,52 +601,45 @@ textarea { resize: vertical; min-height: 70px; }
    + mapping vers les compétences détaillées des journées */
 var DIAG_COMPS = [
   {
-    id:'diag_prise',   label:'Prise en compte du véhicule', sub:'Installation au poste de conduite',
+    id:'diag_prise',    label:'Prise en compte du véhicule', sub:'Installation au poste de commande',
     cat:'Comportement', map:['c_prise','c_install']
   },
   {
-    id:'diag_aisance', label:'Aisance dans la conduite', sub:'Comportement, gestion du stress',
-    cat:'Comportement', map:['c_aisance','c_stress']
+    id:'diag_posture',  label:'Posture du conducteur', sub:'Confiance, gestion des émotions et attitudes',
+    cat:'Comportement', map:['c_posture']
   },
   {
-    id:'diag_gabarit', label:'Appréciation du gabarit', sub:'Trajectoire, positionnement, voie',
-    cat:'Technique',    map:['c_gabarit','c_traje','c_posit']
+    id:'diag_gabarit',  label:'Appréciation du gabarit', sub:'Trajectoire, positionnement & voie',
+    cat:'Technique',    map:['c_gabarit','c_traje_voie']
   },
   {
-    id:'diag_anticip', label:'Anticipation', sub:'Allure, passage de vitesse, distances, intersections, voie rapide',
-    cat:'Technique',    map:['c_allure','c_vitesse','c_souple','c_cote','c_dist','c_inter','c_voie','c_stat']
+    id:'diag_conduite', label:'Conduite opérationnelle', sub:'Allure, souplesse, guidage',
+    cat:'Technique',    map:['c_allure','c_souple','c_guideur','c_guide']
   },
   {
-    id:'diag_code',    label:'Respect du code de la route', sub:'Signalisation spécifique, points dangereux',
-    cat:'Sécurité',     map:['c_code','c_signa','c_danger']
+    id:'diag_code',     label:'Code de la route', sub:'Spécifique SP + code civil',
+    cat:'Sécurité',     map:['c_code_sp','c_code_civil']
   },
   {
-    id:'diag_secu',    label:'Sécurité', sub:'Sécurité cabine, distances',
-    cat:'Sécurité',     map:['c_cabine','c_dist']
+    id:'diag_secu',     label:'Sécurité', sub:'Sécurité cabine',
+    cat:'Sécurité',     map:['c_cabine']
   },
 ];
 
-/* 19 compétences détaillées pour les journées */
+/* 12 compétences détaillées pour les journées */
 var COMPS = [
-  { id:'c_prise',   label:'Prise en compte du véhicule',       sub:'',                                        cat:'Comportement' },
-  { id:'c_install', label:'Installation au poste de conduite', sub:'',                                        cat:'Comportement' },
-  { id:'c_aisance', label:'Aisance à la conduite',             sub:'',                                        cat:'Comportement' },
-  { id:'c_stress',  label:'Gestion du stress',                 sub:'Comportement, ouverture à la discussion', cat:'Comportement' },
-  { id:'c_traje',   label:'Trajectoire sécurisante',           sub:'Choix et réalisation',                    cat:'Technique'    },
-  { id:'c_allure',  label:'Allure & rapport adapté',           sub:'Anticipation poids véhicule',             cat:'Technique'    },
-  { id:'c_gabarit', label:'Appréciation du gabarit',          sub:'',                                         cat:'Technique'    },
-  { id:'c_vitesse', label:'Passage de vitesse',                sub:'',                                        cat:'Technique'    },
-  { id:'c_posit',   label:'Positionnement & voie',             sub:'Choisir sa voie de circulation',          cat:'Technique'    },
-  { id:'c_souple',  label:'Souplesse – transport victime',    sub:'',                                          cat:'Technique'    },
-  { id:'c_cote',    label:'Démarrage en côte',                sub:'',                                          cat:'Technique'    },
-  { id:'c_dist',    label:'Distances de sécurité',            sub:'Évaluer et maintenir',                      cat:'Technique'    },
-  { id:'c_inter',   label:'Franchissement intersections',     sub:'Détecter, identifier, franchir',            cat:'Technique'    },
-  { id:'c_voie',    label:'Voie rapide',                      sub:'Insertion, circulation, sortie',            cat:'Technique'    },
-  { id:'c_stat',    label:'Quitter stationnement',            sub:"S'insérer dans la circulation",             cat:'Technique'    },
-  { id:'c_cabine',  label:'Sécurité cabine',                  sub:'',                                          cat:'Sécurité'     },
-  { id:'c_signa',   label:'Signalisation spécifique',         sub:'Lecture et respect',                        cat:'Sécurité'     },
-  { id:'c_code',    label:'Code de la route',                 sub:'Spécifique au véhicule SP',                 cat:'Sécurité'     },
-  { id:'c_danger',  label:'Points dangereux du secteur',      sub:'Connaître & appréhender',                   cat:'Sécurité'     },
+  { id:'c_prise',      label:'Prise en compte du véhicule',                    sub:'Commande, fonctionnement et dimension',                          cat:'Comportement' },
+  { id:'c_install',    label:'Installation au poste de commande',               sub:'',                                                              cat:'Comportement' },
+  { id:'c_posture',    label:'Posture du conducteur',                           sub:'Confiance, gestion des émotions et attitudes',                  cat:'Comportement' },
+  { id:'c_traje_voie', label:'Trajectoire sécurisante – Positionnement & Voie', sub:'Choix et réalisation – Choisir la voie de circulation',         cat:'Technique'    },
+  { id:'c_allure',     label:'Allure adaptée à la situation',                   sub:'Météo, obstacles, réactivité et dynamisme',                     cat:'Technique'    },
+  { id:'c_gabarit',    label:'Appréciation du gabarit',                        sub:'',                                                              cat:'Technique'    },
+  { id:'c_souple',     label:'Souplesse – transport de victime',                sub:'',                                                              cat:'Technique'    },
+  { id:'c_guideur',    label:'Guidage (guideur)',                               sub:'',                                                              cat:'Technique'    },
+  { id:'c_guide',      label:'Guidage (guidé)',                                 sub:'',                                                              cat:'Technique'    },
+  { id:'c_cabine',     label:'Sécurité cabine',                                sub:'Oui ou Non',                                                    cat:'Sécurité'     },
+  { id:'c_code_sp',    label:'Code de la route spécifique SP',                 sub:'Spécifique au véhicule SP + note de service',                   cat:'Sécurité'     },
+  { id:'c_code_civil', label:'Code de la route civil',                         sub:'Respect du code de la route',                                   cat:'Sécurité'     },
 ];
 
 /* Les 4 jours pris en compte pour la synthèse diagnostique */
@@ -647,10 +656,10 @@ var DAYS = [
 var CAT_COLOR = { Comportement:'#2196f3', Technique:'#fb8c00', 'Sécurité':'#e53935' };
 var CAT_ICON  = { Comportement:'🧠',      Technique:'⚙️',      'Sécurité':'🛡️'      };
 var SM = [
-  { e:'😟', v:1, cls:'s1', lbl:'Insuffisant' },
-  { e:'😐', v:2, cls:'s2', lbl:'À améliorer' },
-  { e:'😑', v:3, cls:'s3', lbl:'Satisfaisant'},
-  { e:'🙂', v:4, cls:'s4', lbl:'Maîtrisé'    },
+  { e:'', v:1, cls:'s1', lbl:'Insuffisant' },
+  { e:'', v:2, cls:'s2', lbl:'À améliorer' },
+  { e:'', v:3, cls:'s3', lbl:'Assez bon'   },
+  { e:'', v:4, cls:'s4', lbl:'Très bien'   },
 ];
 
 /* State */
@@ -706,27 +715,55 @@ function smileForVal(v) {
 }
 
 /* ============================================================
+   FORMATEURS
+   ============================================================ */
+var FORMATEURS = [
+  '','BENEDICT Jérôme','BERNARD-BRET Philippe','BONNET Olivier',
+  'DIEU Virginie','DUFOUR Gaëtan','FRANCOIS Thierry','GATILLON Céline',
+  'LOCATELLI Maëva','MARY Frédéric','MAURIES Pierre','PREGAL Alexandre',
+  'RUEL Antonin','SCHWARTZ Sébastien','VEDELAGO Stéphane','ZEROUDI Imad'
+];
+
+function makeFormateurSelect(dayId) {
+  var opts = FORMATEURS.map(function(f){
+    return '<option value="'+f+'"'+(f===''?' disabled':'')+'>'+( f||'-- Choisir le formateur --')+'</option>';
+  }).join('');
+  return '<select id="form_'+dayId+'" onchange="scheduleAutoSave()" '
+    +'style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;'
+    +'color:#111;font-size:12px;outline:none;min-width:200px;cursor:pointer;">'
+    +opts+'</select>';
+}
+
+/* ============================================================
    CONSTRUCTION TABLE JOURNÉES
    ============================================================ */
 function buildDay(day) {
   var sec = document.getElementById('s'+day.tab);
   if (!sec) return;
 
+  /* Jours avec formateur : J1M, J1S, J3M, J3S (pas J2) */
+  var hasFormateur = (day.id !== 'j2');
+
   sec.innerHTML =
     '<div class="day-header">'
     +'<span style="font-size:22px;">'+day.emoji+'</span>'
     +'<div class="day-header-title">'+day.label+'</div>'
-    +'<div style="margin-left:auto;">'
-    +'<label style="font-size:10px;color:#888;display:block;margin-bottom:2px;letter-spacing:1px;">DATE</label>'
-    +'<input type="date" id="date_'+day.id+'">'
+    +'<div style="margin-left:auto;display:flex;align-items:center;gap:12px;">'
+    +(hasFormateur
+      ? '<div><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>'
+        + makeFormateurSelect(day.id) + '</div>'
+      : '')
+    +'<div><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">📅 DATE</label>'
+    +'<input type="date" id="date_'+day.id+'" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;">'
+    +'</div>'
     +'</div></div>'
 
     +'<div class="legend">'
     +'<span style="font-size:11px;font-weight:bold;color:#888;margin-right:4px;">LÉGENDE :</span>'
-    +'<span class="li"><span style="font-size:14px;">😟</span> Insuffisant</span>'
-    +'<span class="li"><span style="font-size:14px;">😐</span> À améliorer</span>'
-    +'<span class="li"><span style="font-size:14px;">😑</span> Satisfaisant</span>'
-    +'<span class="li"><span style="font-size:14px;">🙂</span> Maîtrisé</span>'
+    +'<span class="li"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#2a2a2a;border:2px solid #777;vertical-align:middle;margin-right:3px;"></span> Insuffisant</span>'
+    +'<span class="li"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#e53935;vertical-align:middle;margin-right:3px;"></span> À améliorer</span>'
+    +'<span class="li"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#fb8c00;vertical-align:middle;margin-right:3px;"></span> Assez bon</span>'
+    +'<span class="li"><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#43a047;vertical-align:middle;margin-right:3px;"></span> Très bien</span>'
     +'<span class="li" style="margin-left:8px;"><span style="background:rgba(144,202,249,.2);color:#90caf9;border-radius:4px;padding:1px 7px;font-weight:bold;">S</span> Stagiaire</span>'
     +'<span class="li"><span style="background:rgba(255,204,128,.2);color:#ffcc80;border-radius:4px;padding:1px 7px;font-weight:bold;">F</span> Formateur</span>'
     +'</div>'
@@ -743,12 +780,9 @@ function buildDay(day) {
     +'<tbody id="tbody_'+day.id+'"></tbody>'
     +'</table></div>'
 
-    +'<div class="card"><div class="card-title">📝 Observations</div>'
-    +'<div class="form-grid">'
-    +'<div class="form-group"><label>👤 Commentaire du stagiaire</label>'
-    +'<textarea id="obs_stag_'+day.id+'" placeholder="Auto-évaluation, ressentis, difficultés..."></textarea></div>'
-    +'<div class="form-group"><label>👨‍🏫 Commentaire du formateur</label>'
-    +'<textarea id="obs_form_'+day.id+'" placeholder="Points positifs, axes d\'amélioration..."></textarea></div>'
+    +'<div class="card"><div class="card-title">📝 Observations du formateur</div>'
+    +'<div class="form-group">'
+    +'<textarea id="obs_form_'+day.id+'" placeholder="Points positifs, axes d\'amélioration..."></textarea>'
     +'</div></div>'
 
     +'<div class="btn-row">'
@@ -784,6 +818,17 @@ function makeRow(dayId, comp) {
   tdN.innerHTML = '<div class="comp-name">'+comp.label+'</div>'+(comp.sub?'<div class="comp-sub">'+comp.sub+'</div>':'');
   tr.appendChild(tdN);
 
+  /* Cas spécial : Sécurité cabine → boutons OUI / NON */
+  if (comp.id === 'c_cabine') {
+    var tdOuiNon = document.createElement('td');
+    tdOuiNon.colSpan = 3;
+    tdOuiNon.className = 'smiley-cell';
+    tdOuiNon.style.textAlign = 'center';
+    tdOuiNon.appendChild(makeCabineToggle(dayId));
+    tr.appendChild(tdOuiNon);
+    return tr;
+  }
+
   var tdS = document.createElement('td'); tdS.className='smiley-cell';
   var sgS = makeSG(dayId, comp.id, 'stag', false);
   tdS.appendChild(sgS); tr.appendChild(tdS);
@@ -809,6 +854,39 @@ function makeRow(dayId, comp) {
   })(dayId, comp.id, nrb, sgS, sgF);
   tdNR.appendChild(nrb); tr.appendChild(tdNR);
   return tr;
+}
+
+/* Boutons OUI / NON pour la sécurité cabine */
+function makeCabineToggle(dayId) {
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;gap:10px;justify-content:center;align-items:center;';
+  wrap.id = 'cabine_wrap_'+dayId;
+  var cur = R[dayId]['c_cabine'] && R[dayId]['c_cabine'].form;
+
+  function mkBtn(val, emoji, label, color) {
+    var btn = document.createElement('button');
+    btn.style.cssText = 'padding:6px 18px;border-radius:20px;border:2px solid '+(cur===val?color:'#555')+';'
+      +'background:'+(cur===val?color+'22':'transparent')+';color:'+(cur===val?color:'#888')+';'
+      +'font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s;';
+    btn.textContent = emoji+' '+label;
+    btn.title = label;
+    btn.onclick = (function(v, c, wrapId) {
+      return function() {
+        if (!R[c]) R[c] = {};
+        if (!R[c]['c_cabine']) R[c]['c_cabine'] = {};
+        R[c]['c_cabine'].form = (R[c]['c_cabine'].form === v ? null : v);
+        /* Reconstruire le toggle */
+        var wrapEl = document.getElementById(wrapId);
+        if (wrapEl) { var parent = wrapEl.parentNode; parent.innerHTML=''; parent.appendChild(makeCabineToggle(c)); }
+        refreshBilan();
+      };
+    })(val, dayId, 'cabine_wrap_'+dayId);
+    return btn;
+  }
+
+  wrap.appendChild(mkBtn('oui', '✅', 'OUI', '#43a047'));
+  wrap.appendChild(mkBtn('non', '❌', 'NON', '#e53935'));
+  return wrap;
 }
 
 function makeSG(dayId, compId, who, readonly) {
@@ -871,7 +949,7 @@ function calcSynthAvg(comp) {
     comp.map.forEach(function(cId) {
       if (!NR[dId][cId]) {
         var v = R[dId][cId] && R[dId][cId].form;
-        if (v) vals.push(v);
+        if (v && typeof v === 'number') vals.push(v);
       }
     });
   });
@@ -919,20 +997,40 @@ function makeDiagRow(comp) {
 }
 
 function renderAutoCell(td, comp) {
-  var a = calcSynthAvg(comp);
   td.innerHTML='';
+  /* Cas spécial : diag_secu → résumé OUI/NON cabine */
+  if (comp.id === 'diag_secu') {
+    var oui=0, non=0;
+    SYNTH_DAYS.forEach(function(dId){
+      var v = R[dId]['c_cabine'] && R[dId]['c_cabine'].form;
+      if (v === 'oui') oui++;
+      else if (v === 'non') non++;
+    });
+    var total = oui + non;
+    if (total === 0) {
+      var none = document.createElement('div');
+      none.className='sb-none'; none.textContent='–'; none.title='Pas encore de données';
+      td.appendChild(none);
+    } else {
+      var wrap = document.createElement('div');
+      wrap.style.cssText='display:flex;flex-direction:column;align-items:center;gap:3px;';
+      if (oui>0) { var d=document.createElement('div'); d.style.cssText='font-size:12px;color:#43a047;font-weight:bold;'; d.textContent='✅ OUI ×'+oui; wrap.appendChild(d); }
+      if (non>0) { var d2=document.createElement('div'); d2.style.cssText='font-size:12px;color:#e53935;font-weight:bold;'; d2.textContent='❌ NON ×'+non; wrap.appendChild(d2); }
+      td.appendChild(wrap);
+    }
+    return;
+  }
+  var a = calcSynthAvg(comp);
   if (a === null) {
-    var none = document.createElement('div');
-    none.className='sb-none'; none.textContent='–'; none.title='Pas encore de données';
-    td.appendChild(none);
+    var none2 = document.createElement('div');
+    none2.className='sb-none'; none2.textContent='–'; none2.title='Pas encore de données';
+    td.appendChild(none2);
   } else {
     var sm = smileForVal(a);
     var el = document.createElement('div');
     el.className = 'sb-auto '+sm.cls;
-    el.textContent = sm.e;
     el.title = 'Moyenne : '+a.toFixed(1)+'/4 → '+sm.lbl;
     td.appendChild(el);
-    /* Score textuel */
     var sc = document.createElement('div');
     sc.style.cssText='font-size:10px;color:#888;margin-top:3px;';
     sc.textContent = a.toFixed(1)+'/4';
@@ -941,6 +1039,34 @@ function renderAutoCell(td, comp) {
 }
 
 function makeDiagFinalSG(compId) {
+  /* Cas spécial : sécurité → OUI/NON */
+  if (compId === 'diag_secu') {
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;gap:8px;justify-content:center;align-items:center;';
+    wrap.id = 'diag_cabine_final';
+    var cur = R['diag'][compId] && R['diag'][compId].form;
+    function mkDBtn(val, emoji, label, color) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'padding:5px 14px;border-radius:18px;border:2px solid '+(cur===val?color:'#555')+';'
+        +'background:'+(cur===val?color+'22':'transparent')+';color:'+(cur===val?color:'#888')+';'
+        +'font-size:13px;font-weight:bold;cursor:pointer;transition:all .2s;';
+      btn.textContent = emoji+' '+label;
+      btn.onclick = (function(v){
+        return function(){
+          if(!R['diag'][compId]) R['diag'][compId]={};
+          R['diag'][compId].form = (R['diag'][compId].form===v?null:v);
+          /* Rebuild */
+          var w=document.getElementById('diag_cabine_final');
+          if(w){ var p=w.parentNode; p.innerHTML=''; p.appendChild(makeDiagFinalSG(compId)); }
+          updateDiagGrise();
+        };
+      })(val);
+      return btn;
+    }
+    wrap.appendChild(mkDBtn('oui','✅','OUI','#43a047'));
+    wrap.appendChild(mkDBtn('non','❌','NON','#e53935'));
+    return wrap;
+  }
   var sg = document.createElement('div'); sg.className='smileys';
   SM.forEach(function(s){
     var cur=(R['diag'][compId]&&R['diag'][compId].form)||null;
@@ -1002,23 +1128,39 @@ function refreshBilan() {
     COMPS.forEach(function(c){
       if(NR[d.id][c.id]) return;
       var rec=R[d.id][c.id]||{};
-      if(rec.form) aggForm[c.id].push(rec.form);
+      if(rec.form && typeof rec.form === 'number') aggForm[c.id].push(rec.form);
     });
   });
 
-  /* Stats */
-  var total=COMPS.length, rated=0, problems=0, mastered=0;
-  COMPS.forEach(function(c){
+  /* Résumé cabine OUI/NON */
+  var cabineOui=0, cabineNon=0, cabineTotal=0;
+  DAYS.forEach(function(d){
+    var v=R[d.id]['c_cabine']&&R[d.id]['c_cabine'].form;
+    if(v==='oui'){cabineOui++;cabineTotal++;}
+    else if(v==='non'){cabineNon++;cabineTotal++;}
+  });
+
+  /* Stats (cabine exclue du scoring numérique) */
+  var numComps=COMPS.filter(function(c){return c.id!=='c_cabine';});
+  var total=numComps.length, rated=0, problems=0, mastered=0;
+  numComps.forEach(function(c){
     var af=avg(aggForm[c.id]);
     if(af!==null){ rated++; if(af<2.5) problems++; if(af>=3.5) mastered++; }
   });
   var pct=rated>0?Math.round(mastered/rated*100):0;
   var pCol=pct>=75?'#43a047':pct>=50?'#fb8c00':'#e53935';
 
+  var cabineTag = cabineTotal>0
+    ? (cabineNon>0
+        ? '<div class="stat-box"><div class="stat-num" style="color:#e53935">❌ '+cabineNon+'/'+cabineTotal+'</div><div class="stat-lbl">Cabine NON</div></div>'
+        : '<div class="stat-box"><div class="stat-num" style="color:#43a047">✅ '+cabineOui+'/'+cabineTotal+'</div><div class="stat-lbl">Cabine OUI</div></div>')
+    : '';
+
   document.getElementById('bilan_stats').innerHTML=
     '<div class="stat-box"><div class="stat-num" style="color:#2196f3">'+rated+'/'+total+'</div><div class="stat-lbl">Évaluées</div></div>'
     +'<div class="stat-box"><div class="stat-num" style="color:#e53935">'+problems+'</div><div class="stat-lbl">À travailler ⚠️</div></div>'
-    +'<div class="stat-box"><div class="stat-num" style="color:'+pCol+'">'+pct+'%</div><div class="stat-lbl">Maîtrise</div></div>';
+    +'<div class="stat-box"><div class="stat-num" style="color:'+pCol+'">'+pct+'%</div><div class="stat-lbl">Maîtrise</div></div>'
+    +cabineTag;
 
   /* Problems */
   var probHTML='', okHTML='';
@@ -1071,6 +1213,7 @@ function refreshBilan() {
   /* Catégories */
   var cats={Comportement:{s:0,n:0},Technique:{s:0,n:0},'Sécurité':{s:0,n:0}};
   COMPS.forEach(function(c){
+    if(c.id==='c_cabine') return; /* OUI/NON, exclu de la moyenne */
     var af=avg(aggForm[c.id]);
     if(af!==null){ cats[c.cat].s+=af; cats[c.cat].n++; }
   });
@@ -1156,16 +1299,20 @@ buildDiag();
    COLLECT / APPLY STATE  (v3)
    ============================================================ */
 function collectState(){
-  var st = {v:3, ts:Date.now(), fields:{}, R:R, NR:NR, JU:JU, MOD2:MOD2};
+  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2};
   document.querySelectorAll('input[type="text"],input[type="date"],textarea').forEach(function(el){
     if(el.id) st.fields[el.id]=el.value;
+  });
+  /* Sauvegarder les selects formateurs */
+  DAYS.forEach(function(d){
+    var sel=document.getElementById('form_'+d.id);
+    if(sel) st.selects['form_'+d.id]=sel.value;
   });
   return st;
 }
 
 function applyState(st){
   if(!st||st.v!==3) return false;
-  /* State */
   R  = st.R  || {diag:{}};
   NR = st.NR || {diag:{}};
   DAYS.forEach(function(d){ if(!R[d.id])R[d.id]={}; if(!NR[d.id])NR[d.id]={}; });
@@ -1173,15 +1320,20 @@ function applyState(st){
   if(!NR.diag) NR.diag={};
   JU   = st.JU||'';
   MOD2 = st.MOD2!==undefined ? st.MOD2 : null;
-  /* Rebuild grilles */
   DAYS.forEach(function(d){ buildDay(d); });
   buildDiag();
   renderMod2();
-  /* Restaurer les champs texte */
   if(st.fields){
     Object.keys(st.fields).forEach(function(id){
       var el=document.getElementById(id);
       if(el) el.value=st.fields[id];
+    });
+  }
+  /* Restaurer les selects formateurs */
+  if(st.selects){
+    Object.keys(st.selects).forEach(function(id){
+      var el=document.getElementById(id);
+      if(el) el.value=st.selects[id];
     });
   }
   if(JU) pickJury(JU);
@@ -1207,10 +1359,10 @@ document.addEventListener('click', function(e){
     scheduleAutoSave();
   }
 });
-/* Intercepter saisie texte */
+/* Intercepter saisie texte et changement select */
 document.addEventListener('input', function(e){
   var t=e.target;
-  if(t.tagName==='INPUT'||t.tagName==='TEXTAREA') scheduleAutoSave();
+  if(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.tagName==='SELECT') scheduleAutoSave();
 });
 
 /* ============================================================
@@ -1384,47 +1536,363 @@ function loadFromJSON(evt){
       <div class="last-save-bar" id="last_save_bar" style="display:none;"></div>
     </div>
 
-    <!-- Enregistrer dans le navigateur -->
-    <div class="mblock">
-      <div class="mblock-title">🖥️ Enregistrer dans ce navigateur</div>
-      <button class="mbtn mbtn-loc" onclick="saveLocal()">
-        💾 Enregistrer le livret ici
+    <!-- ☁️ ONEDRIVE -->
+    <div class="mblock" style="border:2px solid #0078d4;">
+      <div class="mblock-title" style="color:#0078d4;">☁️ Envoyer sur OneDrive Microsoft</div>
+
+      <!-- Statut connexion -->
+      <div id="od_account_bar" style="display:none;margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border:1px solid #90caf9;border-radius:7px;font-size:12px;color:#1565c0;display:flex;align-items:center;gap:8px;">
+        <span>🔗</span><span id="od_account_name">Non connecté</span>
+        <button onclick="odLogout()" style="margin-left:auto;background:none;border:1px solid #90caf9;border-radius:5px;padding:2px 8px;font-size:11px;color:#1565c0;cursor:pointer;">Déconnecter</button>
+      </div>
+
+      <!-- Bouton principal -->
+      <button class="mbtn mbtn-od" id="btnOneDrive" onclick="saveToOneDrive()">
+        <span id="od_btn_icon">☁️</span>
+        <span id="od_btn_label">Enregistrer sur OneDrive</span>
       </button>
-      <div style="font-size:11px;color:#888;">
-        Stocké localement — aucun fichier créé, rechargeable directement depuis cette liste.
-        ⚠️ Effacé si vous videz le cache du navigateur.
+
+      <!-- Message statut -->
+      <div id="od_msg" style="display:none;font-size:12px;margin-top:6px;padding:8px 10px;border-radius:6px;"></div>
+
+      <!-- Config Azure AD (repliable) -->
+      <div style="margin-top:10px;">
+        <button onclick="toggleOdCfg()" style="background:none;border:none;font-size:11px;color:#888;cursor:pointer;padding:0;text-decoration:underline;">
+          ⚙️ Configuration (à faire une seule fois)
+        </button>
+        <div id="od_cfg" style="display:none;margin-top:10px;">
+          <div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:7px;padding:10px 12px;font-size:11px;color:#0d47a1;margin-bottom:10px;line-height:1.8;">
+            <strong>✅ SDIS 38 détecté — configuration simplifiée</strong><br>
+            Le tenant <strong>sdis38.onmicrosoft.com</strong> et le dossier <strong>Documents/CSO 2026</strong> sont déjà pré-remplis.<br>
+            Il vous suffit de saisir l'<strong>ID d'application</strong> obtenu sur Azure AD :
+          </div>
+          <div style="background:#fff3e0;border:1px solid #ffcc02;border-radius:7px;padding:10px 12px;font-size:11px;color:#7b3f00;margin-bottom:10px;line-height:1.7;">
+            <strong>🔧 Obtenir l'ID d'application Azure AD :</strong><br>
+            1. Aller sur <a href="https://portal.azure.com" target="_blank" style="color:#0078d4;">portal.azure.com</a> → <em>Inscriptions d'applications</em><br>
+            2. Cliquer <strong>Nouvelle inscription</strong><br>
+            3. Nom : <em>Livret CSO SDIS38</em> — Comptes : <em>Comptes de cet annuaire uniquement</em><br>
+            4. URI de redirection : <code style="background:#fff;padding:1px 5px;border-radius:3px;">https://login.microsoftonline.com/common/oauth2/nativeclient</code><br>
+            5. Inscrire → copier l'<strong>ID d'application (client)</strong><br>
+            6. Dans <em>Authentification</em> → activer <strong>Flux de clients publics</strong>
+          </div>
+
+          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">ID d'application (client) Azure AD <span style="color:#cc0000;">*</span></label>
+          <input type="text" class="minput" id="od_clientid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="margin-bottom:10px;">
+
+          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">Tenant (domaine Microsoft 365)</label>
+          <input type="text" class="minput" id="od_tenant" value="sdis38.onmicrosoft.com" style="margin-bottom:10px;">
+
+          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">Dossier OneDrive de destination</label>
+          <input type="text" class="minput" id="od_folder" value="Documents/CSO 2026" style="margin-bottom:8px;">
+
+          <button class="mbtn" onclick="saveOdCfg()" style="background:#0078d4;margin-bottom:0;">
+            💾 Enregistrer la configuration
+          </button>
+          <div id="od_cfg_msg" style="display:none;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Livrets enregistrés -->
+    <!-- 📂 Récupérer depuis OneDrive -->
+    <div class="mblock" style="border:1px solid #0078d4;">
+      <div class="mblock-title" style="color:#0078d4;">📂 Récupérer un livret depuis OneDrive</div>
+      <button class="mbtn mbtn-od" onclick="loadFromOneDrive()">
+        📂 Ouvrir depuis OneDrive
+      </button>
+      <div style="font-size:11px;color:#888;margin-top:4px;">
+        Sélectionne un fichier <strong>.json</strong> depuis votre OneDrive et charge le livret.
+      </div>
+    </div>
+
+    <!-- Enregistrer dans le navigateur -->
     <div class="mblock">
-      <div class="mblock-title">📂 Livrets enregistrés (cliquer pour charger)</div>
+      <div class="mblock-title">🖥️ Sauvegarde locale (navigateur)</div>
+      <button class="mbtn mbtn-loc" onclick="saveLocal()">
+        💾 Enregistrer ici
+      </button>
+      <div style="font-size:11px;color:#888;">⚠️ Effacé si vous videz le cache du navigateur.</div>
+    </div>
+
+    <!-- Livrets enregistrés localement -->
+    <div class="mblock">
+      <div class="mblock-title">📋 Livrets enregistrés localement</div>
       <div class="save-list" id="saveList"></div>
     </div>
 
-    <!-- Export / Import JSON -->
+    <!-- Export / Import JSON manuel -->
     <div class="mblock">
-      <div class="mblock-title">📁 Fichier de sauvegarde (.json) — pour OneDrive / partage</div>
-      <button class="mbtn mbtn-dl" onclick="exportJSON()">
-        📥 Exporter en fichier .json (Téléchargements)
-      </button>
-      <button class="mbtn mbtn-load" onclick="triggerImport()">
-        📂 Importer un fichier .json existant
-      </button>
-      <div style="font-size:11px;color:#888;margin-top:4px;">
-        Le fichier <strong>CSO_NOM_PRENOM.json</strong> s'enregistre dans votre dossier
-        <strong>Téléchargements</strong>. Déposez-le ensuite dans votre OneDrive si besoin.
-        Pour reprendre : cliquer « Importer ».
-      </div>
+      <div class="mblock-title">📁 Export / Import manuel (.json)</div>
+      <button class="mbtn mbtn-dl" onclick="exportJSON()">📥 Télécharger le fichier .json</button>
+      <button class="mbtn mbtn-load" onclick="triggerImport()">📂 Importer un fichier .json</button>
     </div>
 
     <input type="file" id="fileInput" accept=".json" style="display:none" onchange="loadFromJSON(event)">
-
   </div>
 </div>
 
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
+<script>
+/* ============================================================
+   ONEDRIVE — MSAL + GRAPH API
+   ============================================================ */
+var OD_CFG_KEY = 'cso_od_cfg_v2';
+var _msalApp   = null;
+
+/* ── Configuration SDIS 38 pré-remplie ── */
+var OD_DEFAULTS = {
+  tenant   : 'sdis38.onmicrosoft.com',
+  folder   : 'Documents/CSO 2026',
+  driveBase: 'https://graph.microsoft.com/v1.0/me/drive/root:/'
+};
+
+function getOdCfg() {
+  try {
+    var stored = JSON.parse(localStorage.getItem(OD_CFG_KEY)||'{}');
+    /* Fusionner avec les défauts SDIS 38 */
+    return Object.assign({ folder: OD_DEFAULTS.folder, tenant: OD_DEFAULTS.tenant }, stored);
+  } catch(e){ return { folder: OD_DEFAULTS.folder, tenant: OD_DEFAULTS.tenant }; }
+}
+
+function getMsal() {
+  var cfg = getOdCfg();
+  if (!cfg.clientId) return null;
+  if (!_msalApp) {
+    var tenant = cfg.tenant || OD_DEFAULTS.tenant;
+    _msalApp = new msal.PublicClientApplication({
+      auth: {
+        clientId: cfg.clientId,
+        authority: 'https://login.microsoftonline.com/' + tenant,
+        redirectUri: 'https://login.microsoftonline.com/common/oauth2/nativeclient'
+      },
+      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
+    });
+  }
+  return _msalApp;
+}
+
+function getOdAccount() {
+  var ms = getMsal(); if (!ms) return null;
+  var accounts = ms.getAllAccounts();
+  return accounts.length ? accounts[0] : null;
+}
+
+function updateOdAccountBar() {
+  var bar  = document.getElementById('od_account_bar');
+  var name = document.getElementById('od_account_name');
+  var acc  = getOdAccount();
+  if (acc) {
+    bar.style.display = 'flex';
+    name.textContent  = '✅ ' + acc.username;
+  } else {
+    bar.style.display = 'none';
+  }
+  // Activer le bouton si clientId configuré
+  var cfg = getOdCfg();
+  document.getElementById('btnOneDrive').disabled = !cfg.clientId;
+}
+
+function toggleOdCfg() {
+  var el = document.getElementById('od_cfg');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  // Pré-remplir champs
+  var cfg = getOdCfg();
+  document.getElementById('od_clientid').value = cfg.clientId || '';
+  document.getElementById('od_folder').value   = cfg.folder   || OD_DEFAULTS.folder;
+  document.getElementById('od_tenant').value   = cfg.tenant   || OD_DEFAULTS.tenant;
+}
+
+function saveOdCfg() {
+  var clientId = document.getElementById('od_clientid').value.trim();
+  var folder   = document.getElementById('od_folder').value.trim()   || OD_DEFAULTS.folder;
+  var tenant   = document.getElementById('od_tenant').value.trim()   || OD_DEFAULTS.tenant;
+  var msgEl    = document.getElementById('od_cfg_msg');
+  if (!clientId) {
+    odCfgMsg('❌ Veuillez saisir un ID d\'application.', '#ffebee', '#c62828'); return;
+  }
+  _msalApp = null;
+  localStorage.setItem(OD_CFG_KEY, JSON.stringify({ clientId: clientId, folder: folder, tenant: tenant }));
+  odCfgMsg('✅ Configuration enregistrée ! Vous pouvez fermer cette section.', '#e8f5e9', '#2e7d32');
+  updateOdAccountBar();
+}
+
+function odCfgMsg(txt, bg, col) {
+  var el = document.getElementById('od_cfg_msg');
+  el.textContent = txt; el.style.cssText = 'display:block;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;background:'+bg+';color:'+col+';';
+}
+
+function odMsg(txt, bg, col) {
+  var el = document.getElementById('od_msg');
+  el.innerHTML = txt; el.style.cssText = 'display:block;font-size:12px;margin-top:6px;padding:8px 10px;border-radius:6px;background:'+bg+';color:'+col+';';
+}
+
+async function odGetToken() {
+  var ms  = getMsal();
+  if (!ms) throw new Error('Configuration Azure AD manquante. Cliquez sur "⚙️ Configuration".');
+  var req = { scopes: ['Files.ReadWrite', 'User.Read'] };
+  var acc = getOdAccount();
+  if (!acc) {
+    await ms.loginPopup(req);
+    acc = ms.getAllAccounts()[0];
+  }
+  try {
+    var r = await ms.acquireTokenSilent({ ...req, account: acc });
+    return r.accessToken;
+  } catch(e) {
+    var r = await ms.acquireTokenPopup({ ...req, account: acc });
+    return r.accessToken;
+  }
+}
+
+/* ENREGISTRER SUR ONEDRIVE */
+async function saveToOneDrive() {
+  var btn   = document.getElementById('btnOneDrive');
+  var label = document.getElementById('od_btn_label');
+  var icon  = document.getElementById('od_btn_icon');
+  btn.disabled = true;
+  icon.textContent  = '⏳';
+  label.textContent = 'Connexion…';
+  odMsg('🔐 Ouverture de la fenêtre de connexion Microsoft…', '#e3f2fd', '#1565c0');
+
+  try {
+    var token  = await odGetToken();
+    var cfg    = getOdCfg();
+    var folder = (cfg.folder || 'Livrets CSO');
+    var name   = document.getElementById('modal_stag').value.trim() || getStagName();
+    var fname  = 'CSO_' + safeName(name) + '.json';
+    var data   = JSON.stringify(collectState(), null, 2);
+
+    label.textContent = 'Envoi en cours…';
+    odMsg('📤 Envoi vers OneDrive/' + folder + '/' + fname + '…', '#e3f2fd', '#1565c0');
+
+    /* Créer le dossier si inexistant, puis uploader */
+    var path = encodeURIComponent(folder + '/' + fname);
+    var resp = await fetch(
+      'https://graph.microsoft.com/v1.0/me/drive/root:/' + path + ':/content',
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': 'application/json'
+        },
+        body: data
+      }
+    );
+
+    if (!resp.ok) {
+      var err = await resp.json();
+      throw new Error((err.error && err.error.message) || 'Erreur HTTP ' + resp.status);
+    }
+
+    var result = await resp.json();
+    updateOdAccountBar();
+    saveLocalSilent(name);
+    odMsg('✅ <strong>' + escH(fname) + '</strong> enregistré dans <strong>OneDrive/' + escH(folder) + '</strong>', '#e8f5e9', '#2e7d32');
+    toast('☁️ Livret enregistré sur OneDrive !', 'ok');
+
+    var btn2 = document.getElementById('btnSaveHdr');
+    btn2.classList.add('save-pulse');
+    setTimeout(function(){ btn2.classList.remove('save-pulse'); }, 600);
+
+  } catch(err) {
+    console.error(err);
+    odMsg('❌ ' + err.message, '#fff5f5', '#c62828');
+    toast('❌ Erreur OneDrive : ' + err.message, 'err', 6000);
+  } finally {
+    btn.disabled  = false;
+    icon.textContent  = '☁️';
+    label.textContent = 'Enregistrer sur OneDrive';
+  }
+}
+
+/* CHARGER DEPUIS ONEDRIVE */
+async function loadFromOneDrive() {
+  odMsg('🔐 Connexion Microsoft…', '#e3f2fd', '#1565c0');
+  try {
+    var token  = await odGetToken();
+    var cfg    = getOdCfg();
+    var folder = cfg.folder || 'Livrets CSO';
+
+    /* Lister les fichiers .json du dossier */
+    odMsg('📂 Récupération de la liste des livrets…', '#e3f2fd', '#1565c0');
+    var resp = await fetch(
+      'https://graph.microsoft.com/v1.0/me/drive/root:/' + encodeURIComponent(folder) + ':/children?$select=name,id,lastModifiedDateTime&$filter=endswith(name,\'.json\')&$orderby=lastModifiedDateTime desc',
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+
+    if (!resp.ok) throw new Error('Impossible de lire le dossier OneDrive/' + folder);
+    var list = await resp.json();
+    var files = (list.value || []).filter(function(f){ return f.name.startsWith('CSO_'); });
+
+    if (!files.length) {
+      odMsg('ℹ️ Aucun livret trouvé dans OneDrive/' + escH(folder) + '.', '#fff3e0', '#7b3f00');
+      return;
+    }
+
+    /* Afficher la liste pour sélection */
+    showOdPicker(files, token);
+  } catch(err) {
+    odMsg('❌ ' + err.message, '#fff5f5', '#c62828');
+    toast('❌ ' + err.message, 'err', 6000);
+  }
+}
+
+function showOdPicker(files, token) {
+  var html = '<div style="font-size:12px;font-weight:bold;color:#1565c0;margin-bottom:8px;">Sélectionnez un livret à charger :</div>';
+  files.forEach(function(f, i) {
+    var dt = new Date(f.lastModifiedDateTime).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    html += '<div class="save-item" style="margin-bottom:6px;" onclick="odLoadFile(\''+escJ(f.id)+'\',\''+escJ(f.name)+'\')">'
+      + '<div class="save-item-info"><div class="save-item-name">'+escH(f.name)+'</div><div class="save-item-date">'+dt+'</div></div>'
+      + '<span style="color:#0078d4;font-size:18px;">→</span></div>';
+  });
+  document.getElementById('od_msg').innerHTML = html;
+  document.getElementById('od_msg').style.cssText = 'display:block;font-size:12px;margin-top:6px;padding:8px 10px;border-radius:6px;background:#e3f2fd;color:#1565c0;';
+  /* stocker token temporairement */
+  window._odToken = token;
+}
+
+async function odLoadFile(fileId, fileName) {
+  odMsg('⏳ Chargement de ' + escH(fileName) + '…', '#e3f2fd', '#1565c0');
+  try {
+    var token = window._odToken || await odGetToken();
+    var resp  = await fetch(
+      'https://graph.microsoft.com/v1.0/me/drive/items/' + fileId + '/content',
+      { headers: { 'Authorization': 'Bearer ' + token } }
+    );
+    if (!resp.ok) throw new Error('Impossible de télécharger le fichier.');
+    var st = await resp.json();
+    if (!st || st.v !== 3) throw new Error('Fichier invalide ou version incompatible.');
+    if (!confirm('Charger « ' + fileName + ' » ?\nLes données non enregistrées seront perdues.')) return;
+    applyState(st);
+    var stagName = st.stagiaire || '';
+    document.getElementById('modal_stag').value = stagName;
+    closeModal();
+    toast('📂 Livret chargé depuis OneDrive : ' + escH(fileName), 'ok');
+  } catch(err) {
+    odMsg('❌ ' + err.message, '#fff5f5', '#c62828');
+  }
+}
+
+function odLogout() {
+  var ms = getMsal(); if (!ms) return;
+  var acc = getOdAccount();
+  if (acc) ms.logoutPopup({ account: acc });
+  updateOdAccountBar();
+}
+
+/* Surcharger openModal pour init OneDrive */
+var _origOpenModal = openModal;
+openModal = function() {
+  _origOpenModal();
+  updateOdAccountBar();
+  // Désactiver bouton si pas configuré
+  var cfg = getOdCfg();
+  document.getElementById('btnOneDrive').disabled = !cfg.clientId;
+  if (!cfg.clientId) {
+    odMsg('⚙️ Configurez d\'abord l\'application Azure AD (cliquer sur "Configuration").', '#fff3e0', '#7b3f00');
+  }
+};
+</script>
 </body>
 </html>
