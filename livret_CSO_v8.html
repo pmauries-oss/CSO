@@ -1952,8 +1952,6 @@ function toggleOdCfg(){
     if(of) of.value=cfg.folder||'CSO 2026';
   }
 }
-function saveToOneDrive(){ if(window._saveToOneDrive) window._saveToOneDrive(); else alert('Initialisation en cours, réessayez dans 1 seconde.'); }
-function loadFromOneDrive(){ if(window._loadFromOneDrive) window._loadFromOneDrive(); else alert('Initialisation en cours, réessayez dans 1 seconde.'); }
 function saveOdCfg(){
   var clientId=(document.getElementById('od_clientid').value||'').trim();
   var tenant=(document.getElementById('od_tenant').value||'').trim()||'sdis38.onmicrosoft.com';
@@ -1966,7 +1964,7 @@ function saveOdCfg(){
   if(window._updateOdAccountBar) window._updateOdAccountBar();
   setTimeout(function(){ var el=document.getElementById('od_cfg'); if(el) el.style.display='none'; },1500);
 }
-function odLogout(){ if(window._odLogout) window._odLogout(); }
+
 </script>
 
 <!-- =========================================================
