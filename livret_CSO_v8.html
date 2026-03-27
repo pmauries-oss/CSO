@@ -386,7 +386,6 @@ textarea { resize: vertical; min-height: 70px; }
 .toast.ok {border-color:#a5d6a7;background:#f1f8f1;}
 .toast.err{border-color:#ffcdd2;background:#fff5f5;}
 </style>
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -641,67 +640,136 @@ textarea { resize: vertical; min-height: 70px; }
 
 <script>
 /* ============================================================
-   ONEDRIVE — MSAL SPA  (GitHub Pages uniquement)
+   ONEDRIVE — OAuth2 PKCE natif (sans librairie externe)
    ============================================================ */
 var OD_CFG_KEY = 'cso_od_cfg_v2';
-var _msalApp   = null;
 var OD_DEFAULTS = { tenant:'sdis38.onmicrosoft.com', folder:'CSO 2026' };
+var _odTokenCache = null;
 
-/* ─── Config locale ─── */
 function getOdCfg() {
   try {
-    return Object.assign({tenant:OD_DEFAULTS.tenant,folder:OD_DEFAULTS.folder},
+    return Object.assign({tenant:OD_DEFAULTS.tenant, folder:OD_DEFAULTS.folder},
       JSON.parse(localStorage.getItem(OD_CFG_KEY)||'{}'));
-  } catch(e){ return {tenant:OD_DEFAULTS.tenant,folder:OD_DEFAULTS.folder}; }
+  } catch(e) { return {tenant:OD_DEFAULTS.tenant, folder:OD_DEFAULTS.folder}; }
 }
 
-/* ─── MSAL instance ─── */
-function getMsal() {
-  var cfg = getOdCfg();
-  if (!cfg.clientId) return null;
-  if (!_msalApp) {
-    _msalApp = new msal.PublicClientApplication({
-      auth: {
-        clientId  : cfg.clientId,
-        authority : 'https://login.microsoftonline.com/' + cfg.tenant,
-        redirectUri: window.location.origin + window.location.pathname
-      },
-      cache: { cacheLocation:'localStorage', storeAuthStateInCookie:false }
-    });
-  }
-  return _msalApp;
+/* ── Token cache ── */
+function _saveOdToken(data) {
+  try { localStorage.setItem('cso_od_token', JSON.stringify(data)); } catch(e){}
+  _odTokenCache = data;
 }
-
-/* ─── Token ─── */
-async function odGetToken() {
-  var ms = getMsal();
-  if (!ms) throw new Error('ID d\'application manquant — ouvrez Configuration');
-  await ms.handleRedirectPromise().catch(function(){});
-  var scopes  = ['Files.ReadWrite','User.Read'];
-  var account = ms.getAllAccounts()[0] || null;
+function _getOdToken() {
+  if (_odTokenCache && _odTokenCache.exp > Date.now()) return _odTokenCache;
   try {
-    if (account) {
-      var r = await ms.acquireTokenSilent({scopes:scopes, account:account});
-      return r.accessToken;
-    }
+    var d = JSON.parse(localStorage.getItem('cso_od_token')||'null');
+    if (d && d.exp > Date.now()) { _odTokenCache = d; return d; }
   } catch(e){}
-  var r = await ms.loginPopup({scopes:scopes, prompt:'select_account'});
-  return r.accessToken;
+  return null;
+}
+function _clearOdToken() {
+  _odTokenCache = null;
+  try { localStorage.removeItem('cso_od_token'); } catch(e){}
 }
 
-/* ─── UI barre compte ─── */
+/* ── PKCE helpers ── */
+function _b64u(buf) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(buf)))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+}
+async function _sha256(str) {
+  return crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+}
+function _rand() {
+  var a = new Uint8Array(48); crypto.getRandomValues(a); return _b64u(a);
+}
+
+/* ── Connexion PKCE popup ── */
+async function odGetToken() {
+  var cached = _getOdToken();
+  if (cached) return cached.access_token;
+
+  var cfg = getOdCfg();
+  if (!cfg.clientId) throw new Error('ID application manquant — ouvrez Configuration');
+
+  var tenant    = cfg.tenant || OD_DEFAULTS.tenant;
+  var clientId  = cfg.clientId;
+  var redirectUri = window.location.origin + window.location.pathname;
+  var scopes    = 'Files.ReadWrite User.Read offline_access';
+  var verifier  = _rand();
+  var challenge = _b64u(await _sha256(verifier));
+  var state     = _rand().substring(0,16);
+
+  var authUrl = 'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/authorize'
+    + '?client_id='    + encodeURIComponent(clientId)
+    + '&response_type=code'
+    + '&redirect_uri=' + encodeURIComponent(redirectUri)
+    + '&scope='        + encodeURIComponent(scopes)
+    + '&state='        + state
+    + '&code_challenge=' + challenge
+    + '&code_challenge_method=S256'
+    + '&prompt=select_account';
+
+  var w = screen.width, h = screen.height;
+  var popup = window.open(authUrl, 'msauth',
+    'width=500,height=640,left='+Math.round((w-500)/2)+',top='+Math.round((h-640)/2));
+  if (!popup) throw new Error('Popup bloqué — autorisez les popups pour ce site.');
+
+  /* Attendre le retour du popup */
+  var code = await new Promise(function(resolve, reject) {
+    var max = 300, n = 0;
+    var t = setInterval(function() {
+      n++;
+      try {
+        var u = popup.location.href;
+        if (u && (u.indexOf('code=') !== -1 || u.indexOf('error=') !== -1)) {
+          clearInterval(t);
+          try { popup.close(); } catch(e){}
+          var qs = u.split('?')[1] || u.split('#')[1] || '';
+          var p  = new URLSearchParams(qs);
+          var err = p.get('error');
+          if (err) reject(new Error(p.get('error_description') || err));
+          else resolve(p.get('code'));
+        }
+      } catch(e) { /* cross-origin — attente normale */ }
+      if (n >= max) { clearInterval(t); try{popup.close();}catch(e){} reject(new Error('Délai de connexion dépassé.')); }
+      if (popup.closed && n > 3) { clearInterval(t); reject(new Error('Fenêtre fermée avant la connexion.')); }
+    }, 1000);
+  });
+
+  /* Échanger le code contre un token */
+  var body = new URLSearchParams({
+    client_id: clientId, grant_type: 'authorization_code',
+    code: code, redirect_uri: redirectUri, code_verifier: verifier,
+    scope: scopes
+  });
+  var resp = await fetch(
+    'https://login.microsoftonline.com/' + tenant + '/oauth2/v2.0/token',
+    { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: body.toString() }
+  );
+  var tok = await resp.json();
+  if (!resp.ok) throw new Error(tok.error_description || tok.error || 'Erreur token');
+
+  /* Récupérer le nom */
+  var username = '';
+  try {
+    var me = await fetch('https://graph.microsoft.com/v1.0/me?$select=displayName',
+      {headers:{'Authorization':'Bearer '+tok.access_token}});
+    var md = await me.json();
+    username = md.displayName || '';
+  } catch(e){}
+
+  _saveOdToken({ access_token: tok.access_token, exp: Date.now() + (tok.expires_in - 60)*1000, username: username });
+  updateOdAccountBar();
+  return tok.access_token;
+}
+
+/* ── UI ── */
 function updateOdAccountBar() {
-  var ms  = getMsal();
   var bar = document.getElementById('od_account_bar');
   var nam = document.getElementById('od_account_name');
-  if (!bar) return;
-  if (ms) {
-    var acc = ms.getAllAccounts()[0];
-    if (acc) {
-      bar.style.display = 'flex';
-      if (nam) nam.textContent = '✅ ' + (acc.name||acc.username);
-    } else { bar.style.display='none'; }
-  } else { bar.style.display='none'; }
+  var cached = _getOdToken();
+  if (bar) bar.style.display = cached ? 'flex' : 'none';
+  if (nam && cached) nam.textContent = '✅ ' + (cached.username || 'Connecté');
   var btn = document.getElementById('btnOneDrive');
   if (btn) btn.disabled = !getOdCfg().clientId;
 }
@@ -712,55 +780,64 @@ function odMsg(html, bg, col) {
   el.innerHTML = html;
   el.style.cssText = 'display:block;font-size:12px;margin-bottom:10px;padding:10px 12px;border-radius:8px;line-height:1.7;background:'+bg+';color:'+col+';';
 }
-function odMsgClear(){ var el=document.getElementById('od_msg'); if(el) el.style.display='none'; }
+function odMsgClear() { var el=document.getElementById('od_msg'); if(el) el.style.display='none'; }
 
-function odCfgMsg(txt,bg,col){
+function odCfgMsg(txt,bg,col) {
   var el=document.getElementById('od_cfg_msg');
   if(!el) return;
   el.textContent=txt;
   el.style.cssText='display:block;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;background:'+bg+';color:'+col+';';
 }
 
-/* toggleOdCfg : défini plus haut comme proxy global */
+function toggleOdCfg() {
+  var el=document.getElementById('od_cfg');
+  if(!el) return;
+  el.style.display = el.style.display==='none' ? 'block' : 'none';
+  if(el.style.display==='block') {
+    var cfg=getOdCfg();
+    var ci=document.getElementById('od_clientid');
+    var ot=document.getElementById('od_tenant');
+    var of=document.getElementById('od_folder');
+    if(ci) ci.value=cfg.clientId||'';
+    if(ot) ot.value=cfg.tenant||OD_DEFAULTS.tenant;
+    if(of) of.value=cfg.folder||OD_DEFAULTS.folder;
+  }
+}
 
-function saveOdCfg(){
+function saveOdCfg() {
   var clientId=(document.getElementById('od_clientid').value||'').trim();
   var tenant  =(document.getElementById('od_tenant').value||'').trim()||OD_DEFAULTS.tenant;
   var folder  =(document.getElementById('od_folder').value||'').trim()||OD_DEFAULTS.folder;
-  if(!clientId){ odCfgMsg('❌ ID application requis.','#ffebee','#c62828'); return; }
-  _msalApp=null;
-  localStorage.setItem(OD_CFG_KEY,JSON.stringify({clientId:clientId,tenant:tenant,folder:folder}));
-  odCfgMsg('✅ Configuration enregistrée.','#e8f5e9','#2e7d32');
+  if(!clientId){ odCfgMsg('ID application requis.','#ffebee','#c62828'); return; }
+  _clearOdToken();
+  localStorage.setItem(OD_CFG_KEY, JSON.stringify({clientId:clientId, tenant:tenant, folder:folder}));
+  odCfgMsg('Configuration enregistrée.','#e8f5e9','#2e7d32');
   updateOdAccountBar();
-  /* Fermer le panneau après 1.5s */
   setTimeout(function(){ var el=document.getElementById('od_cfg'); if(el) el.style.display='none'; },1500);
 }
 
-function odLogout(){
-  var ms=getMsal();
-  if(ms){ var acc=ms.getAllAccounts()[0]; if(acc) ms.logoutPopup({account:acc}).catch(function(){}); }
-  updateOdAccountBar(); odMsgClear();
+function odLogout() {
+  _clearOdToken();
+  updateOdAccountBar();
+  odMsgClear();
 }
 
-/* ─── Détecter fichier local ─── */
-function isLocalFile(){ return window.location.protocol==='file:'; }
+function isLocalFile() { return window.location.protocol === 'file:'; }
 
-function checkLocalWarn(){
+function checkLocalWarn() {
   var warn=document.getElementById('od_local_warn');
   var btn=document.getElementById('btnOneDrive');
-  var btnLoad=document.querySelector('[onclick="loadFromOneDrive()"]');
   if(!warn) return;
   if(isLocalFile()){
     warn.style.display='block';
-    if(btn){ btn.disabled=true; btn.title='Hébergement GitHub Pages requis'; }
-    if(btnLoad){ btnLoad.disabled=true; btnLoad.title='Hébergement GitHub Pages requis'; }
+    if(btn) btn.disabled=true;
   } else {
     warn.style.display='none';
   }
 }
 
-/* ─── ENREGISTRER ─── */
-async function saveToOneDrive(){
+/* ── ENREGISTRER ── */
+async function saveToOneDrive() {
   var btn=document.getElementById('btnOneDrive');
   var lbl=document.getElementById('od_btn_label');
   var ico=document.getElementById('od_btn_icon');
@@ -768,35 +845,27 @@ async function saveToOneDrive(){
   if(lbl) lbl.textContent='Connexion...';
   if(ico) ico.textContent='⏳';
   odMsgClear();
-
   try {
     var token  = await odGetToken();
     var cfg    = getOdCfg();
     var folder = cfg.folder||OD_DEFAULTS.folder;
-    var name   = (document.getElementById('modal_stag')||{}).value||getStagName()||'stagiaire';
+    var name   = (document.getElementById('modal_stag')||{}).value || getStagName() || 'stagiaire';
     var fname  = 'CSO_'+safeName(name)+'.json';
     var data   = JSON.stringify(collectState(),null,2);
-
     if(lbl) lbl.textContent='Envoi...';
-    odMsg('📤 Envoi de <strong>'+escH(fname)+'</strong>...','#e3f2fd','#1565c0');
-
+    odMsg('Envoi de <strong>'+escH(fname)+'</strong>...','#e3f2fd','#1565c0');
     var path = encodeURIComponent(folder+'/'+fname);
     var resp = await fetch(
       'https://graph.microsoft.com/v1.0/me/drive/root:/'+path+':/content',
-      { method:'PUT',
-        headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
-        body:data }
+      { method:'PUT', headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'}, body:data }
     );
     if(!resp.ok){ var e=await resp.json(); throw new Error((e.error&&e.error.message)||'HTTP '+resp.status); }
-
-    updateOdAccountBar();
     saveLocalSilent(name);
-    odMsg('✅ <strong>'+escH(fname)+'</strong> mis à jour dans OneDrive / '+escH(folder),'#e8f5e9','#2e7d32');
-    toast('☁️ Livret enregistré sur OneDrive !','ok');
-
-  } catch(err){
-    odMsg('❌ '+escH(err.message||String(err)),'#fff5f5','#c62828');
-    toast('❌ '+(err.message||err),'err',6000);
+    odMsg('Livret <strong>'+escH(fname)+'</strong> mis à jour sur OneDrive.','#e8f5e9','#2e7d32');
+    toast('Livret enregistré sur OneDrive !','ok');
+  } catch(err) {
+    odMsg('Erreur : '+escH(err.message||String(err)),'#fff5f5','#c62828');
+    toast('Erreur : '+(err.message||err),'err',6000);
   } finally {
     if(btn) btn.disabled=false;
     if(lbl) lbl.textContent='Enregistrer sur OneDrive';
@@ -804,88 +873,79 @@ async function saveToOneDrive(){
   }
 }
 
-/* ─── CHARGER ─── */
-async function loadFromOneDrive(){
+/* ── CHARGER ── */
+async function loadFromOneDrive() {
   var picker=document.getElementById('od_picker');
   if(picker){ picker.style.display='none'; picker.innerHTML=''; }
-  odMsg('🔐 Connexion...','#e3f2fd','#1565c0');
-
+  odMsg('Connexion...','#e3f2fd','#1565c0');
   try {
     var token  = await odGetToken();
     var cfg    = getOdCfg();
     var folder = cfg.folder||OD_DEFAULTS.folder;
-
-    odMsg('📂 Chargement de la liste...','#e3f2fd','#1565c0');
-    var url='https://graph.microsoft.com/v1.0/me/drive/root:/'
-      +encodeURIComponent(folder)
-      +':/children?$select=name,id,lastModifiedDateTime&$orderby=lastModifiedDateTime desc&$top=50';
-    var resp=await fetch(url,{headers:{'Authorization':'Bearer '+token}});
-    if(!resp.ok) throw new Error('Dossier OneDrive/'+folder+' introuvable. Vérifiez qu\'il existe.');
-    var list=await resp.json();
-    var files=(list.value||[]).filter(function(f){ return /\.json$/i.test(f.name); });
-
-    if(!files.length){
-      odMsg('ℹ️ Aucun livret dans OneDrive/'+escH(folder)+'.','#fff3e0','#7b3f00');
-      return;
-    }
+    odMsg('Chargement des livrets...','#e3f2fd','#1565c0');
+    var url = 'https://graph.microsoft.com/v1.0/me/drive/root:/'
+      + encodeURIComponent(folder)
+      + ':/children?$select=name,id,lastModifiedDateTime&$orderby=lastModifiedDateTime desc&$top=50';
+    var resp = await fetch(url,{headers:{'Authorization':'Bearer '+token}});
+    if(!resp.ok) throw new Error('Dossier "'+folder+'" introuvable sur OneDrive.');
+    var list  = await resp.json();
+    var files = (list.value||[]).filter(function(f){ return /\.json$/i.test(f.name); });
+    if(!files.length){ odMsg('Aucun livret dans OneDrive/'+escH(folder)+'.','#fff3e0','#7b3f00'); return; }
     odMsgClear();
-    showOdPicker(files,token);
-
-  } catch(err){
-    odMsg('❌ '+escH(err.message||String(err)),'#fff5f5','#c62828');
+    showOdPicker(files, token);
+  } catch(err) {
+    odMsg('Erreur : '+escH(err.message||String(err)),'#fff5f5','#c62828');
   }
 }
 
-function showOdPicker(files,token){
+function showOdPicker(files, token) {
   var picker=document.getElementById('od_picker');
   if(!picker) return;
   picker.style.display='block';
-  var html='<div style="font-size:11px;font-weight:bold;color:#0078d4;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase;">📂 Sélectionnez un livret</div>'
+  var html='<div style="font-size:11px;font-weight:bold;color:#0078d4;margin-bottom:8px;text-transform:uppercase;">Sélectionnez un livret</div>'
     +'<div style="max-height:220px;overflow-y:auto;">';
-  files.forEach(function(f){
+  files.forEach(function(f) {
     var dt=new Date(f.lastModifiedDateTime).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     var nom=f.name.replace(/^CSO_/,'').replace(/\.json$/i,'').replace(/_/g,' ');
-    html+='<div class="save-item" onclick="odLoadFile(\'' + escJ(f.id) + '\',\'' + escJ(f.name) + '\')" style="cursor:pointer;">'
-      +'<div class="save-item-info">'
-      +'<div class="save-item-name">👤 '+escH(nom)+'</div>'
-      +'<div class="save-item-date">🕐 '+dt+'</div>'
-      +'</div>'
-      +'<span style="color:#0078d4;font-size:20px;padding-left:8px;">→</span>'
-      +'</div>';
+    html+='<div class="save-item od-pick-item" data-id="'+escH(f.id)+'" data-name="'+escH(f.name)+'" style="cursor:pointer;">'
+      +'<div class="save-item-info"><div class="save-item-name">'+escH(nom)+'</div>'
+      +'<div class="save-item-date">'+dt+'</div></div>'
+      +'<span style="color:#0078d4;font-size:20px;padding-left:8px;">&#8594;</span></div>';
   });
   html+='</div>';
   picker.innerHTML=html;
   window._odToken=token;
+  /* Event delegation — évite les problèmes d'échappement inline */
+  picker.querySelectorAll('.od-pick-item').forEach(function(el){
+    el.addEventListener('click', function(){
+      odLoadFile(this.dataset.id, this.dataset.name);
+    });
+  });
 }
 
-async function odLoadFile(fileId,fileName){
-  odMsg('⏳ Chargement...','#e3f2fd','#1565c0');
+async function odLoadFile(fileId, fileName) {
+  odMsg('Chargement...','#e3f2fd','#1565c0');
   var picker=document.getElementById('od_picker');
   if(picker){ picker.style.display='none'; picker.innerHTML=''; }
   try {
     var token=window._odToken||await odGetToken();
-    var resp=await fetch(
-      'https://graph.microsoft.com/v1.0/me/drive/items/'+fileId+'/content',
-      {headers:{'Authorization':'Bearer '+token}}
-    );
+    var resp=await fetch('https://graph.microsoft.com/v1.0/me/drive/items/'+fileId+'/content',
+      {headers:{'Authorization':'Bearer '+token}});
     if(!resp.ok) throw new Error('Impossible de télécharger le fichier.');
     var st=await resp.json();
-    if(!st||st.v!==3) throw new Error('Format de fichier incompatible.');
+    if(!st||st.v!==3) throw new Error('Format incompatible.');
     var nom=fileName.replace(/^CSO_/,'').replace(/\.json$/i,'').replace(/_/g,' ');
-    if(!confirm('Charger le livret de « '+nom+' » ?\nLes données non enregistrées seront perdues.')) return;
-    applyState(st);
-    initAllSigs();
-    var ms=document.getElementById('modal_stag');
-    if(ms) ms.value=nom;
-    closeModal();
-    odMsgClear();
-    toast('📂 Livret de '+nom+' chargé depuis OneDrive.','ok');
-  } catch(err){
-    odMsg('❌ '+escH(err.message),'#fff5f5','#c62828');
+    if(!confirm('Charger le livret de '+nom+' ? Les données non enregistrées seront perdues.')) return;
+    applyState(st); initAllSigs();
+    var ms=document.getElementById('modal_stag'); if(ms) ms.value=nom;
+    closeModal(); odMsgClear();
+    toast('Livret de '+nom+' chargé.','ok');
+  } catch(err) {
+    odMsg('Erreur : '+escH(err.message),'#fff5f5','#c62828');
   }
 }
 
-/* ─── Surcharge openModal ─── */
+/* ── Surcharge openModal ── */
 var _origOpenModal=openModal;
 openModal=function(){
   _origOpenModal();
@@ -900,8 +960,7 @@ openModal=function(){
   if(picker){ picker.style.display='none'; picker.innerHTML=''; }
   checkLocalWarn();
   updateOdAccountBar();
-  var cfg=getOdCfg();
-  if(!cfg.clientId){
+  if(!getOdCfg().clientId){
     var cfgDiv=document.getElementById('od_cfg');
     if(cfgDiv) cfgDiv.style.display='block';
   }
@@ -1960,7 +2019,7 @@ function saveOdCfg(){
   localStorage.setItem('cso_od_cfg_v2',JSON.stringify({clientId:clientId,tenant:tenant,folder:folder}));
   var msg=document.getElementById('od_cfg_msg');
   if(msg){ msg.textContent='✅ Configuration enregistrée.'; msg.style.cssText='display:block;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;background:#e8f5e9;color:#2e7d32;'; }
-  window._msalApp=null;
+  _clearOdToken();
   if(window._updateOdAccountBar) window._updateOdAccountBar();
   setTimeout(function(){ var el=document.getElementById('od_cfg'); if(el) el.style.display='none'; },1500);
 }
