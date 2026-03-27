@@ -386,8 +386,6 @@ textarea { resize: vertical; min-height: 70px; }
 .toast.ok {border-color:#a5d6a7;background:#f1f8f1;}
 .toast.err{border-color:#ffcdd2;background:#fff5f5;}
 </style>
-
-<script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
 </head>
 <body>
 
@@ -1689,49 +1687,27 @@ function loadFromJSON(evt){
       <div class="last-save-bar" id="last_save_bar" style="display:none;"></div>
     </div>
 
-    <!-- ☁️ ONEDRIVE UNIFIÉ -->
+    <!-- ☁️ ONEDRIVE SIMPLIFIÉ -->
     <div class="mblock" style="border:2px solid #0078d4;">
-      <div class="mblock-title" style="color:#0078d4;">☁️ OneDrive Microsoft</div>
+      <div class="mblock-title" style="color:#0078d4;">☁️ Enregistrer sur OneDrive</div>
 
-      <!-- Statut connexion -->
-      <div id="od_account_bar" style="display:none;margin-bottom:10px;padding:8px 12px;background:#e3f2fd;border:1px solid #90caf9;border-radius:7px;font-size:12px;color:#1565c0;display:flex;align-items:center;gap:8px;">
-        <span>🔗</span><span id="od_account_name"></span>
-        <button onclick="odLogout()" style="margin-left:auto;background:none;border:1px solid #90caf9;border-radius:5px;padding:2px 8px;font-size:11px;color:#1565c0;cursor:pointer;">Déconnecter</button>
+      <div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:8px;padding:10px 12px;font-size:12px;color:#0d47a1;margin-bottom:10px;line-height:1.9;">
+        <strong>📋 Méthode en 2 clics :</strong><br>
+        1️⃣ Cliquez <strong>📥 Télécharger le JSON</strong> → le fichier se télécharge<br>
+        2️⃣ Cliquez <strong>📂 Ouvrir OneDrive</strong> → glissez-déposez le fichier dans <strong>Documents/CSO 2026</strong>
       </div>
 
-      <!-- Message statut -->
-      <div id="od_msg" style="display:none;font-size:12px;margin-top:6px;margin-bottom:8px;padding:10px 12px;border-radius:8px;"></div>
-
-      <!-- Boutons principaux -->
-      <button class="mbtn mbtn-od" id="btnOneDrive" onclick="saveToOneDrive()">
-        <span id="od_btn_icon">☁️</span>
-        <span id="od_btn_label">Enregistrer sur OneDrive</span>
-      </button>
-      <button class="mbtn mbtn-od" onclick="loadFromOneDrive()" style="background:#1565c0;margin-top:6px;">
-        📂 Ouvrir un livret depuis OneDrive
+      <button class="mbtn mbtn-od" onclick="exportEtOuvreOneDrive()">
+        📥 Télécharger le JSON + Ouvrir OneDrive
       </button>
 
-      <!-- Picker fichiers OneDrive -->
-      <div id="od_picker" style="display:none;margin-top:10px;"></div>
-
-      <!-- Config Azure AD -->
-      <div style="margin-top:12px;border-top:1px dashed #cce;padding-top:10px;">
-        <button type="button" id="btn_od_cfg" onclick="toggleOdCfg()" style="width:100%;background:#f5f5f5;border:1px solid #ccc;border-radius:7px;font-size:12px;color:#555;cursor:pointer;padding:8px 12px;text-align:left;font-weight:bold;">
-          ⚙️ Configuration Azure AD (à faire une seule fois)
+      <div style="margin-top:10px;border-top:1px dashed #cce;padding-top:10px;">
+        <div class="mblock-title" style="font-size:11px;color:#0078d4;">📂 Charger un livret</div>
+        <button class="mbtn mbtn-od" style="background:#1565c0;" onclick="triggerImport()">
+          📂 Importer un fichier JSON depuis OneDrive
         </button>
-        <div id="od_cfg" style="display:none;margin-top:10px;">
-          <div style="background:#e3f2fd;border:1px solid #90caf9;border-radius:7px;padding:10px 12px;font-size:11px;color:#0d47a1;margin-bottom:10px;line-height:1.8;">
-            <strong>✅ SDIS 38 — configuration pré-remplie</strong><br>
-            Collez uniquement votre <strong>ID d'application</strong> Azure AD :
-          </div>
-          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">ID d'application (client) <span style="color:#cc0000;">*</span></label>
-          <input type="text" class="minput" id="od_clientid" placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" style="margin-bottom:8px;">
-          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">Tenant</label>
-          <input type="text" class="minput" id="od_tenant" value="sdis38.onmicrosoft.com" style="margin-bottom:8px;">
-          <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;display:block;margin-bottom:4px;">Dossier OneDrive</label>
-          <input type="text" class="minput" id="od_folder" value="Documents/CSO 2026" style="margin-bottom:8px;">
-          <button class="mbtn" onclick="saveOdCfg()" style="background:#0078d4;margin-bottom:0;">💾 Enregistrer</button>
-          <div id="od_cfg_msg" style="display:none;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;"></div>
+        <div style="font-size:11px;color:#888;margin-top:4px;">
+          Ouvrez d'abord votre OneDrive → téléchargez le fichier CSO_NOM.json → importez-le ici.
         </div>
       </div>
     </div>
@@ -1767,305 +1743,45 @@ function loadFromJSON(evt){
 
 <script>
 /* ============================================================
-   ONEDRIVE — MSAL (SPA, fonctionne depuis GitHub Pages / SharePoint)
+   ONEDRIVE — EXPORT / IMPORT SIMPLE (sans authentification)
    ============================================================ */
-var OD_CFG_KEY  = 'cso_od_cfg_v2';
-var _msalApp    = null;
 
-var OD_DEFAULTS = {
-  tenant   : 'sdis38.onmicrosoft.com',
-  folder   : 'Documents/CSO 2026'
-};
+var OD_CFG_KEY = 'cso_od_cfg_v2';
+var OD_DEFAULTS = { folder: 'Documents/CSO 2026' };
 
-/* ── Config ── */
 function getOdCfg() {
-  try {
-    var s = JSON.parse(localStorage.getItem(OD_CFG_KEY) || '{}');
-    return Object.assign({ folder: OD_DEFAULTS.folder, tenant: OD_DEFAULTS.tenant }, s);
-  } catch(e) { return { folder: OD_DEFAULTS.folder, tenant: OD_DEFAULTS.tenant }; }
+  try { return JSON.parse(localStorage.getItem(OD_CFG_KEY) || '{}'); }
+  catch(e) { return {}; }
 }
 
-/* ── MSAL instance ── */
-function getMsal() {
-  var cfg = getOdCfg();
-  if (!cfg.clientId) return null;
-  if (!_msalApp) {
-    _msalApp = new msal.PublicClientApplication({
-      auth: {
-        clientId   : cfg.clientId,
-        authority  : 'https://login.microsoftonline.com/' + cfg.tenant,
-        redirectUri: window.location.href.split('?')[0].split('#')[0]
-      },
-      cache: { cacheLocation: 'localStorage', storeAuthStateInCookie: false }
-    });
-  }
-  return _msalApp;
+/* Télécharge le JSON ET ouvre OneDrive dans un nouvel onglet */
+function exportEtOuvreOneDrive() {
+  /* 1. Télécharger le fichier JSON */
+  var name  = (document.getElementById('modal_stag') || {}).value || getStagName() || 'stagiaire';
+  var fname = 'CSO_' + safeName(name) + '.json';
+  var data  = JSON.stringify(collectState(), null, 2);
+  var blob  = new Blob([data], { type: 'application/json' });
+  var url   = URL.createObjectURL(blob);
+  var a     = document.createElement('a');
+  a.href    = url;
+  a.download = fname;
+  a.click();
+  URL.revokeObjectURL(url);
+
+  /* 2. Ouvrir OneDrive SDIS38 après un court délai */
+  setTimeout(function() {
+    window.open('https://sdis38-my.sharepoint.com/', '_blank');
+  }, 800);
+
+  saveLocalSilent(name);
+  toast('📥 Fichier téléchargé — glissez-le dans OneDrive/Documents/CSO 2026', 'ok', 5000);
 }
 
-/* ── Token ── */
-async function odGetToken() {
-  var ms = getMsal();
-  if (!ms) throw new Error('ID d\'application manquant — ouvrez ⚙️ Configuration');
-
-  await ms.handleRedirectPromise();
-  var scopes  = ['Files.ReadWrite', 'User.Read'];
-  var account = ms.getAllAccounts()[0] || null;
-
-  try {
-    if (account) {
-      var r = await ms.acquireTokenSilent({ scopes: scopes, account: account });
-      return r.accessToken;
-    }
-  } catch(e) { /* silent failed — try popup */ }
-
-  var r = await ms.loginPopup({ scopes: scopes });
-  return r.accessToken;
-}
-
-/* ── UI connexion ── */
-function updateOdAccountBar() {
-  var ms  = getMsal();
-  var bar = document.getElementById('od_account_bar');
-  var nam = document.getElementById('od_account_name');
-  if (!bar) return;
-  if (ms) {
-    var acc = ms.getAllAccounts()[0];
-    if (acc) {
-      bar.style.display = 'flex';
-      if (nam) nam.textContent = '✅ ' + (acc.name || acc.username);
-    } else {
-      bar.style.display = 'none';
-    }
-  } else {
-    bar.style.display = 'none';
-  }
-  var btn = document.getElementById('btnOneDrive');
-  if (btn) btn.disabled = !getOdCfg().clientId;
-}
-
-function toggleOdCfg() {
-  var el  = document.getElementById('od_cfg');
-  var btn = document.getElementById('btn_od_cfg');
-  if (!el) return;
-  var open = el.style.display !== 'none';
-  el.style.display = open ? 'none' : 'block';
-  if (btn) btn.innerHTML = '⚙️ Configuration Azure AD (à faire une seule fois)';
-  if (!open) {
-    var cfg = getOdCfg();
-    var ci = document.getElementById('od_clientid');
-    var ot = document.getElementById('od_tenant');
-    var of = document.getElementById('od_folder');
-    if (ci) ci.value = cfg.clientId || '';
-    if (ot) ot.value = cfg.tenant   || OD_DEFAULTS.tenant;
-    if (of) of.value = cfg.folder   || OD_DEFAULTS.folder;
-  }
-}
-
-function saveOdCfg() {
-  var clientId = (document.getElementById('od_clientid').value || '').trim();
-  var tenant   = (document.getElementById('od_tenant').value   || '').trim() || OD_DEFAULTS.tenant;
-  var folder   = (document.getElementById('od_folder').value   || '').trim() || OD_DEFAULTS.folder;
-  if (!clientId) { odCfgMsg('❌ ID d\'application requis.', '#ffebee', '#c62828'); return; }
-  _msalApp = null;
-  localStorage.setItem(OD_CFG_KEY, JSON.stringify({ clientId: clientId, tenant: tenant, folder: folder }));
-  odCfgMsg('✅ Configuration enregistrée.', '#e8f5e9', '#2e7d32');
-  updateOdAccountBar();
-}
-
-function odCfgMsg(txt, bg, col) {
-  var el = document.getElementById('od_cfg_msg');
-  if (!el) return;
-  el.textContent = txt;
-  el.style.cssText = 'display:block;font-size:11px;margin-top:6px;padding:6px 10px;border-radius:5px;background:'+bg+';color:'+col+';';
-}
-
-function odMsg(html, bg, col) {
-  var el = document.getElementById('od_msg');
-  if (!el) return;
-  el.innerHTML = html;
-  el.style.cssText = 'display:block;font-size:12px;margin-top:0;margin-bottom:8px;padding:10px 12px;border-radius:8px;background:'+bg+';color:'+col+';';
-}
-
-function odMsgClear() {
-  var el = document.getElementById('od_msg');
-  if (el) el.style.display = 'none';
-}
-
-function odLogout() {
-  var ms = getMsal();
-  if (ms) {
-    var acc = ms.getAllAccounts()[0];
-    if (acc) ms.logoutPopup({ account: acc }).catch(function(){});
-  }
-  updateOdAccountBar();
-  odMsgClear();
-}
-
-/* ── ENREGISTRER ── */
-async function saveToOneDrive() {
-  var btn = document.getElementById('btnOneDrive');
-  var lbl = document.getElementById('od_btn_label');
-  var ico = document.getElementById('od_btn_icon');
-  if (btn) btn.disabled = true;
-  if (lbl) lbl.textContent = 'Connexion…';
-  if (ico) ico.textContent = '⏳';
-  odMsgClear();
-
-  try {
-    var token  = await odGetToken();
-    var cfg    = getOdCfg();
-    var folder = cfg.folder || OD_DEFAULTS.folder;
-    var name   = (document.getElementById('modal_stag') || {}).value || getStagName() || 'stagiaire';
-    var fname  = 'CSO_' + safeName(name) + '.json';
-    var data   = JSON.stringify(collectState(), null, 2);
-
-    if (lbl) lbl.textContent = 'Envoi…';
-    odMsg('📤 Envoi de <strong>' + escH(fname) + '</strong>…', '#e3f2fd', '#1565c0');
-
-    var path = encodeURIComponent(folder + '/' + fname);
-    var resp = await fetch(
-      'https://graph.microsoft.com/v1.0/me/drive/root:/' + path + ':/content',
-      { method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: data }
-    );
-    if (!resp.ok) { var e = await resp.json(); throw new Error(e.error && e.error.message || 'HTTP ' + resp.status); }
-
-    updateOdAccountBar();
-    saveLocalSilent(name);
-    odMsg('✅ <strong>' + escH(fname) + '</strong> enregistré dans OneDrive / ' + escH(folder), '#e8f5e9', '#2e7d32');
-    toast('☁️ Livret enregistré sur OneDrive !', 'ok');
-
-  } catch(err) {
-    odMsg('❌ ' + escH(err.message || String(err)), '#fff5f5', '#c62828');
-    toast('❌ ' + (err.message || err), 'err', 6000);
-  } finally {
-    if (btn) btn.disabled = false;
-    if (lbl) lbl.textContent = 'Enregistrer sur OneDrive';
-    if (ico) ico.textContent = '☁️';
-  }
-}
-
-/* ── CHARGER — liste picker ── */
-async function loadFromOneDrive() {
-  var picker = document.getElementById('od_picker');
-  if (picker) { picker.style.display = 'none'; picker.innerHTML = ''; }
-  odMsg('🔐 Connexion…', '#e3f2fd', '#1565c0');
-
-  try {
-    var token  = await odGetToken();
-    var cfg    = getOdCfg();
-    var folder = cfg.folder || OD_DEFAULTS.folder;
-
-    odMsg('📂 Chargement des livrets…', '#e3f2fd', '#1565c0');
-
-    var url = 'https://graph.microsoft.com/v1.0/me/drive/root:/'
-      + encodeURIComponent(folder)
-      + ':/children?$select=name,id,lastModifiedDateTime&$orderby=lastModifiedDateTime desc&$top=50';
-
-    var resp = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
-    if (!resp.ok) throw new Error('Impossible d\'accéder au dossier OneDrive/' + folder + '. Vérifiez qu\'il existe.');
-    var list  = await resp.json();
-    var files = (list.value || []).filter(function(f){ return f.name.match(/\.json$/i); });
-
-    if (!files.length) {
-      odMsg('ℹ️ Aucun livret dans OneDrive/' + escH(folder) + '.', '#fff3e0', '#7b3f00');
-      return;
-    }
-
-    odMsgClear();
-    showOdPicker(files, token);
-
-  } catch(err) {
-    odMsg('❌ ' + escH(err.message || String(err)), '#fff5f5', '#c62828');
-  }
-}
-
-function showOdPicker(files, token) {
-  var picker = document.getElementById('od_picker');
-  if (!picker) return;
-  picker.style.display = 'block';
-  var html = '<div style="font-size:11px;font-weight:bold;color:#0078d4;letter-spacing:.5px;margin-bottom:8px;text-transform:uppercase;">📂 Sélectionnez un livret</div>'
-    + '<div style="max-height:240px;overflow-y:auto;">';
-  files.forEach(function(f) {
-    var dt = new Date(f.lastModifiedDateTime).toLocaleString('fr-FR',
-      { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
-    var nom = f.name.replace(/^CSO_/, '').replace(/\.json$/, '').replace(/_/g, ' ');
-    html += '<div class="save-item" onclick="odLoadFile('' + escJ(f.id) + '','' + escJ(f.name) + '')" style="cursor:pointer;">'
-      + '<div class="save-item-info">'
-      + '<div class="save-item-name">👤 ' + escH(nom) + '</div>'
-      + '<div class="save-item-date">🕐 ' + dt + '</div>'
-      + '</div>'
-      + '<span style="color:#0078d4;font-size:18px;padding-left:8px;">→</span>'
-      + '</div>';
-  });
-  html += '</div>';
-  picker.innerHTML = html;
-  window._odToken = token;
-}
-
-async function odLoadFile(fileId, fileName) {
-  odMsg('⏳ Chargement…', '#e3f2fd', '#1565c0');
-  var picker = document.getElementById('od_picker');
-  if (picker) { picker.style.display = 'none'; picker.innerHTML = ''; }
-  try {
-    var token = window._odToken || await odGetToken();
-    var resp  = await fetch(
-      'https://graph.microsoft.com/v1.0/me/drive/items/' + fileId + '/content',
-      { headers: { 'Authorization': 'Bearer ' + token } }
-    );
-    if (!resp.ok) throw new Error('Impossible de télécharger le fichier.');
-    var st = await resp.json();
-    if (!st || st.v !== 3) throw new Error('Format de fichier incompatible.');
-    var nom = fileName.replace(/^CSO_/, '').replace(/\.json$/, '').replace(/_/g, ' ');
-    if (!confirm('Charger le livret de « ' + nom + ' » ?
-Les données non enregistrées seront perdues.')) return;
-    applyState(st);
-    initAllSigs();
-    var ms = document.getElementById('modal_stag');
-    if (ms) ms.value = nom;
-    closeModal();
-    odMsgClear();
-    toast('📂 Livret de ' + nom + ' chargé depuis OneDrive.', 'ok');
-  } catch(err) {
-    odMsg('❌ ' + escH(err.message), '#fff5f5', '#c62828');
-  }
-}
-
-/* ── Surcharge openModal ── *//
+/* Surcharge openModal — réinitialise l'état du modal */
 var _origOpenModal = openModal;
 openModal = function() {
   _origOpenModal();
-  /* Réinitialiser le bouton */
-  var btn = document.getElementById('btnOneDrive');
-  var lbl = document.getElementById('od_btn_label');
-  var ico = document.getElementById('od_btn_icon');
-  if (btn) btn.disabled = false;
-  if (lbl) lbl.textContent = 'Enregistrer sur OneDrive';
-  if (ico) ico.textContent = '☁️';
-  odMsgClear();
-  var picker = document.getElementById('od_picker');
-  if (picker) { picker.style.display = 'none'; picker.innerHTML = ''; }
-  updateOdAccountBar();
-  /* Ouvrir config automatiquement si pas encore configuré */
-  var cfg = getOdCfg();
-  if (!cfg.clientId) {
-    var cfgDiv = document.getElementById('od_cfg');
-    if (cfgDiv) cfgDiv.style.display = 'block';
-    odMsg('⚙️ Saisissez votre ID d\'application Azure AD dans la configuration ci-dessous.', '#fff3e0', '#7b3f00');
-  }
 };
-
-/* ── Auto-ouvrir config si pas encore configuré ── */
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() {
-    var cfg = getOdCfg();
-    if (!cfg.clientId) {
-      var cfgDiv = document.getElementById('od_cfg');
-      if (cfgDiv) cfgDiv.style.display = 'block';
-    }
-  }, 300);
-});
 </script>
 </body>
 </html>
