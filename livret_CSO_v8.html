@@ -845,7 +845,7 @@ function showOdPicker(files,token){
   files.forEach(function(f){
     var dt=new Date(f.lastModifiedDateTime).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
     var nom=f.name.replace(/^CSO_/,'').replace(/\.json$/i,'').replace(/_/g,' ');
-    html+='<div class="save-item" onclick="odLoadFile(''+escJ(f.id)+'',''+escJ(f.name)+'')" style="cursor:pointer;">'
+    html+='<div class="save-item" onclick="odLoadFile(\'' + escJ(f.id) + '\',\'' + escJ(f.name) + '\')" style="cursor:pointer;">'
       +'<div class="save-item-info">'
       +'<div class="save-item-name">👤 '+escH(nom)+'</div>'
       +'<div class="save-item-date">🕐 '+dt+'</div>'
