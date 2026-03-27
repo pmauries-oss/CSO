@@ -1911,6 +1911,16 @@ function saveLocal(){
   toast('✅ Livret « '+escH(name)+' » enregistré dans ce navigateur.','ok');
 }
 
+function saveLocalSilent(name){
+  try {
+    var saves=localSaves();
+    saves[name]={ts:Date.now(),state:collectState()};
+    setLocalSaves(saves);
+    localStorage.setItem('cso_autosave',JSON.stringify(collectState()));
+    renderSaveList();
+  } catch(e){}
+}
+
 function loadLocal(name){
   var saves=localSaves();
   var entry=saves[name];
