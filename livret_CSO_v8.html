@@ -945,26 +945,6 @@ async function odLoadFile(fileId, fileName) {
   }
 }
 
-/* ── Surcharge openModal ── */
-var _origOpenModal=openModal;
-openModal=function(){
-  _origOpenModal();
-  var btn=document.getElementById('btnOneDrive');
-  var lbl=document.getElementById('od_btn_label');
-  var ico=document.getElementById('od_btn_icon');
-  if(btn) btn.disabled=false;
-  if(lbl) lbl.textContent='Enregistrer sur OneDrive';
-  if(ico) ico.textContent='☁️';
-  odMsgClear();
-  var picker=document.getElementById('od_picker');
-  if(picker){ picker.style.display='none'; picker.innerHTML=''; }
-  checkLocalWarn();
-  updateOdAccountBar();
-  if(!getOdCfg().clientId){
-    var cfgDiv=document.getElementById('od_cfg');
-    if(cfgDiv) cfgDiv.style.display='block';
-  }
-};
 </script>
 
 <script>
@@ -1015,6 +995,16 @@ var COMPS = [
   { id:'c_cabine',     label:'Sécurité cabine',                                sub:'Oui ou Non',                                                    cat:'Sécurité'     },
   { id:'c_code_sp',    label:'Code de la route spécifique SP',                 sub:'Spécifique au véhicule SP + note de service',                   cat:'Sécurité'     },
   { id:'c_code_civil', label:'Code de la route civil',                         sub:'Respect du code de la route',                                   cat:'Sécurité'     },
+];
+
+/* Compétences spécifiques Jour 2 */
+var COMPS_J2 = [
+  { id:'c_j2_install',      label:'Installation au poste de conduite',    sub:'',                                              cat:'Comportement' },
+  { id:'c_j2_comportement', label:'Comportement du stagiaire',             sub:'Gestion du stress, ouverture à la discussion',  cat:'Comportement' },
+  { id:'c_j2_vitesse',      label:'Adaptation de la vitesse',              sub:'',                                              cat:'Technique'    },
+  { id:'c_j2_techniques',   label:'Application des techniques',            sub:'',                                              cat:'Technique'    },
+  { id:'c_j2_trajectoire',  label:'Trajectoire',                           sub:'',                                              cat:'Technique'    },
+  { id:'c_j2_consignes',    label:'Application générale des consignes',    sub:'',                                              cat:'Sécurité'     },
 ];
 
 /* Les 4 jours pris en compte pour la synthèse diagnostique */
@@ -1165,7 +1155,7 @@ function buildDay(day) {
     +'<button class="btn btn-primary"   onclick="goTab('+day.nextTab+')">'+day.nextLabel+'</button>'
     +'</div>';
 
-  buildDayTable(day.id, COMPS, 'tbody_'+day.id);
+  buildDayTable(day.id, (day.id === 'j2' ? COMPS_J2 : COMPS), 'tbody_'+day.id);
 }
 
 function buildDayTable(dayId, compList, tbodyId) {
@@ -1894,6 +1884,29 @@ function openModal(){
   document.getElementById('saveModal').classList.add('open');
 }
 function closeModal(){document.getElementById('saveModal').classList.remove('open');}
+
+/* ── Surcharge openModal (OneDrive UI reset) ── */
+(function(){
+  var _orig = openModal;
+  openModal = function(){
+    _orig();
+    var btn=document.getElementById('btnOneDrive');
+    var lbl=document.getElementById('od_btn_label');
+    var ico=document.getElementById('od_btn_icon');
+    if(btn) btn.disabled=false;
+    if(lbl) lbl.textContent='Enregistrer sur OneDrive';
+    if(ico) ico.textContent='☁️';
+    odMsgClear();
+    var picker=document.getElementById('od_picker');
+    if(picker){ picker.style.display='none'; picker.innerHTML=''; }
+    checkLocalWarn();
+    updateOdAccountBar();
+    if(!getOdCfg().clientId){
+      var cfgDiv=document.getElementById('od_cfg');
+      if(cfgDiv) cfgDiv.style.display='block';
+    }
+  };
+})();
 
 /* ============================================================
    SAUVEGARDE LOCALE (liste nommée)
