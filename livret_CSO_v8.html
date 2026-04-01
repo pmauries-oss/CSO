@@ -54,6 +54,24 @@ body { font-family: Arial, sans-serif; background: #f5f5f5; color: #111; min-hei
 /* FORM */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
+
+/* Photo apprenant */
+.photo-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:10px; }
+.photo-preview {
+  width:120px; height:150px; border-radius:10px; object-fit:cover;
+  border:2px dashed #555; background:#1a1a2e; display:flex; align-items:center;
+  justify-content:center; color:#666; font-size:32px; cursor:pointer;
+  overflow:hidden; position:relative;
+}
+.photo-preview img { width:100%; height:100%; object-fit:cover; border-radius:8px; }
+.photo-btns { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; }
+.photo-btn {
+  font-size:11px; padding:5px 12px; border-radius:16px;
+  border:1px solid #555; background:#222; color:#ccc;
+  cursor:pointer; transition:background .15s;
+}
+.photo-btn:hover { background:#333; }
+.photo-btn.danger { border-color:#e53935; color:#e53935; }
 .form-group.full { grid-column: 1 / -1; }
 label { font-size: 10px; font-weight: bold; letter-spacing: 1.2px; text-transform: uppercase; color: #666; }
 input[type="text"], input[type="date"], textarea {
@@ -414,9 +432,33 @@ textarea { resize: vertical; min-height: 70px; }
 <div class="section active" id="s0">
   <div class="card">
     <div class="card-title">👤 Identité de l'apprenant</div>
+
+    <!-- Photo apprenant -->
+    <div class="photo-wrap">
+      <div class="photo-preview" id="photo_preview" onclick="document.getElementById('photo_input').click()" title="Cliquez pour ajouter une photo">
+        <span id="photo_placeholder">📷</span>
+        <img id="photo_img" src="" style="display:none;">
+      </div>
+      <div class="photo-btns">
+        <button type="button" class="photo-btn" onclick="document.getElementById('photo_input').click()">📁 Importer</button>
+        <button type="button" class="photo-btn" onclick="openCamera()">📷 Caméra</button>
+        <button type="button" class="photo-btn danger" onclick="clearPhoto()" id="photo_del" style="display:none;">✕ Supprimer</button>
+      </div>
+      <input type="file" id="photo_input" accept="image/*" style="display:none" onchange="loadPhotoFromFile(event)">
+      <!-- Capture caméra -->
+      <div id="camera_wrap" style="display:none;flex-direction:column;align-items:center;gap:8px;">
+        <video id="camera_video" autoplay playsinline style="width:220px;border-radius:8px;border:1px solid #555;"></video>
+        <div class="photo-btns">
+          <button type="button" class="photo-btn" onclick="snapPhoto()">📸 Prendre la photo</button>
+          <button type="button" class="photo-btn danger" onclick="stopCamera()">✕ Annuler</button>
+        </div>
+      </div>
+      <canvas id="photo_canvas" style="display:none;"></canvas>
+    </div>
+
     <div class="form-grid">
-      <div class="form-group"><label>Nom</label><input type="text" id="f_prenom" placeholder="Nom"></div>
-      <div class="form-group"><label>Prénom</label><input type="text" id="f_nom" placeholder="Prénom"></div>
+      <div class="form-group"><label>Prénom</label><input type="text" id="f_prenom" placeholder="Prénom"></div>
+      <div class="form-group"><label>Nom</label><input type="text" id="f_nom" placeholder="Nom"></div>
       <div class="form-group"><label>Matricule</label><input type="text" id="f_mat" placeholder="38-XXXX"></div>
       <div class="form-group"><label>Affectation</label><input type="text" id="f_aff" placeholder="CS / CIS de..."></div>
     </div>
@@ -608,6 +650,9 @@ textarea { resize: vertical; min-height: 70px; }
       </div>
       <div class="visa-box">
         <div class="visa-title">Apprenant</div>
+        <div style="text-align:center;margin-bottom:8px;">
+          <img id="bilan_photo" src="" style="display:none;width:60px;height:75px;object-fit:cover;border-radius:6px;border:1px solid #ddd;">
+        </div>
         <div class="sig-wrap">
           <canvas id="sig_app" class="sig-canvas" width="400" height="120"></canvas>
           <div class="sig-placeholder" id="sig_app_ph">✍️ Signer ici</div>
@@ -693,7 +738,7 @@ async function odGetToken() {
 
   var tenant    = cfg.tenant || OD_DEFAULTS.tenant;
   var clientId  = cfg.clientId;
-  var redirectUri = window.location.origin + window.location.pathname;
+  var redirectUri = (window.location.protocol === 'https:') ? (window.location.origin + window.location.pathname) : 'https://pmauries-oss.github.io/CSO/livret_CSO_v8.html';
   var scopes    = 'Files.ReadWrite User.Read offline_access';
   var verifier  = _rand();
   var challenge = _b64u(await _sha256(verifier));
@@ -707,7 +752,7 @@ async function odGetToken() {
     + '&state='        + state
     + '&code_challenge=' + challenge
     + '&code_challenge_method=S256'
-    + '&prompt=select_account';
+;
 
   var w = screen.width, h = screen.height;
   var popup = window.open(authUrl, 'msauth',
@@ -945,6 +990,28 @@ async function odLoadFile(fileId, fileName) {
   }
 }
 
+/* ── Surcharge openModal (différée au chargement de la page) ── */
+document.addEventListener('DOMContentLoaded', function() {
+  var _origOpenModal=openModal;
+  openModal=function(){
+    _origOpenModal();
+  var btn=document.getElementById('btnOneDrive');
+  var lbl=document.getElementById('od_btn_label');
+  var ico=document.getElementById('od_btn_icon');
+  if(btn) btn.disabled=false;
+  if(lbl) lbl.textContent='Enregistrer sur OneDrive';
+  if(ico) ico.textContent='☁️';
+  odMsgClear();
+  var picker=document.getElementById('od_picker');
+  if(picker){ picker.style.display='none'; picker.innerHTML=''; }
+  checkLocalWarn();
+  updateOdAccountBar();
+  if(!getOdCfg().clientId){
+    var cfgDiv=document.getElementById('od_cfg');
+    if(cfgDiv) cfgDiv.style.display='block';
+  }
+  };
+});
 </script>
 
 <script>
@@ -997,14 +1064,14 @@ var COMPS = [
   { id:'c_code_civil', label:'Code de la route civil',                         sub:'Respect du code de la route',                                   cat:'Sécurité'     },
 ];
 
-/* Compétences spécifiques Jour 2 */
-var COMPS_J2 = [
-  { id:'c_j2_install',      label:'Installation au poste de conduite',    sub:'',                                              cat:'Comportement' },
-  { id:'c_j2_comportement', label:'Comportement du stagiaire',             sub:'Gestion du stress, ouverture à la discussion',  cat:'Comportement' },
-  { id:'c_j2_vitesse',      label:'Adaptation de la vitesse',              sub:'',                                              cat:'Technique'    },
-  { id:'c_j2_techniques',   label:'Application des techniques',            sub:'',                                              cat:'Technique'    },
-  { id:'c_j2_trajectoire',  label:'Trajectoire',                           sub:'',                                              cat:'Technique'    },
-  { id:'c_j2_consignes',    label:'Application générale des consignes',    sub:'',                                              cat:'Sécurité'     },
+/* Compétences spécifiques Jour 2 (conduite tutorée) */
+var J2_COMPS = [
+  { id:'c_install',    label:'Installation au poste de conduite',          sub:'',                                           cat:'Comportement' },
+  { id:'c_posture',    label:'Comportement du stagiaire',                  sub:'Stress, ouverture à la discussion',          cat:'Comportement' },
+  { id:'c_allure',     label:'Adaptation à la vitesse',                    sub:'Météo, obstacles, réactivité',               cat:'Technique'    },
+  { id:'c_traje_voie', label:'Application des techniques',                 sub:'Trajectoire, positionnement',                cat:'Technique'    },
+  { id:'c_gabarit',    label:'Trajectoire',                                sub:'Choix et réalisation de la trajectoire',     cat:'Technique'    },
+  { id:'c_code_sp',    label:'Application générale des consignes',         sub:'Code SP, consignes de sécurité',             cat:'Sécurité'     },
 ];
 
 /* Les 4 jours pris en compte pour la synthèse diagnostique */
@@ -1083,7 +1150,7 @@ function smileForVal(v) {
    FORMATEURS
    ============================================================ */
 var FORMATEURS = [
-  '','BENEDETTI Jérôme','BERNARD-BRET Philippe','BONNET Olivier',
+  '','BENEDICT Jérôme','BERNARD-BRET Philippe','BONNET Olivier',
   'DIEU Virginie','DUFOUR Gaëtan','FRANCOIS Thierry','GATILLON Céline',
   'LOCATELLI Maëva','MARY Frédéric','MAURIES Pierre','PREGAL Alexandre',
   'RUEL Antonin','SCHWARTZ Sébastien','VEDELAGO Stéphane','ZEROUDI Imad'
@@ -1155,7 +1222,7 @@ function buildDay(day) {
     +'<button class="btn btn-primary"   onclick="goTab('+day.nextTab+')">'+day.nextLabel+'</button>'
     +'</div>';
 
-  buildDayTable(day.id, (day.id === 'j2' ? COMPS_J2 : COMPS), 'tbody_'+day.id);
+  buildDayTable(day.id, day.id === 'j2' ? J2_COMPS : COMPS, 'tbody_'+day.id);
 }
 
 function buildDayTable(dayId, compList, tbodyId) {
@@ -1178,6 +1245,7 @@ function buildDayTable(dayId, compList, tbodyId) {
 
 function makeRow(dayId, comp) {
   var tr = document.createElement('tr');
+  var isJ2 = (dayId === 'j2');
 
   var tdN = document.createElement('td');
   tdN.innerHTML = '<div class="comp-name">'+comp.label+'</div>'+(comp.sub?'<div class="comp-sub">'+comp.sub+'</div>':'');
@@ -1199,8 +1267,13 @@ function makeRow(dayId, comp) {
   tdS.appendChild(sgS); tr.appendChild(tdS);
 
   var tdF = document.createElement('td'); tdF.className='smiley-cell';
-  var sgF = makeSG(dayId, comp.id, 'form', false);
-  tdF.appendChild(sgF); tr.appendChild(tdF);
+  if (!isJ2) {
+    var sgF = makeSG(dayId, comp.id, 'form', false);
+    tdF.appendChild(sgF);
+  } else {
+    tdF.innerHTML = '<span style="color:#555;font-size:11px;">—</span>';
+  }
+  tr.appendChild(tdF);
 
   var tdNR = document.createElement('td'); tdNR.className='nr-cell';
   var nrb  = document.createElement('button');
@@ -1593,6 +1666,12 @@ function refreshBilan() {
       +'<div style="font-size:11px;color:#888;margin-top:3px;">'+d.n+' compétence(s) évaluée(s)</div></div>';
   });
 
+  /* Photo dans le bilan */
+  var bilanPhoto = document.getElementById('bilan_photo');
+  if (bilanPhoto) {
+    if (_photoData) { bilanPhoto.src = _photoData; bilanPhoto.style.display = 'block'; }
+    else { bilanPhoto.style.display = 'none'; }
+  }
   /* Visas */
   var rn=document.getElementById('f_resp'), vr=document.getElementById('v_resp');
   if(rn&&vr) vr.textContent=rn.value;
@@ -1754,12 +1833,82 @@ function initAllSigs() {
 }
 
 /* ============================================================
+   PHOTO APPRENANT
+   ============================================================ */
+var _photoData = null; /* base64 de la photo */
+
+function setPhoto(dataUrl) {
+  _photoData = dataUrl;
+  var img = document.getElementById('photo_img');
+  var ph  = document.getElementById('photo_placeholder');
+  var del = document.getElementById('photo_del');
+  if (img) { img.src = dataUrl; img.style.display = 'block'; }
+  if (ph)  ph.style.display = 'none';
+  if (del) del.style.display = '';
+  scheduleAutoSave();
+}
+
+function clearPhoto() {
+  _photoData = null;
+  var img = document.getElementById('photo_img');
+  var ph  = document.getElementById('photo_placeholder');
+  var del = document.getElementById('photo_del');
+  if (img) { img.src = ''; img.style.display = 'none'; }
+  if (ph)  ph.style.display = '';
+  if (del) del.style.display = 'none';
+  scheduleAutoSave();
+}
+
+function loadPhotoFromFile(evt) {
+  var file = evt.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) { setPhoto(e.target.result); };
+  reader.readAsDataURL(file);
+  evt.target.value = '';
+}
+
+var _cameraStream = null;
+function openCamera() {
+  var wrap = document.getElementById('camera_wrap');
+  var vid  = document.getElementById('camera_video');
+  if (!navigator.mediaDevices) { alert('Caméra non disponible sur cet appareil.'); return; }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
+    .then(function(stream) {
+      _cameraStream = stream;
+      vid.srcObject = stream;
+      if (wrap) wrap.style.display = 'flex';
+    })
+    .catch(function() { alert('Impossible d\'accéder à la caméra.'); });
+}
+
+function snapPhoto() {
+  var vid  = document.getElementById('camera_video');
+  var can  = document.getElementById('photo_canvas');
+  if (!vid || !can) return;
+  can.width  = vid.videoWidth  || 320;
+  can.height = vid.videoHeight || 400;
+  can.getContext('2d').drawImage(vid, 0, 0);
+  var dataUrl = can.toDataURL('image/jpeg', 0.8);
+  setPhoto(dataUrl);
+  stopCamera();
+}
+
+function stopCamera() {
+  if (_cameraStream) { _cameraStream.getTracks().forEach(function(t){ t.stop(); }); _cameraStream = null; }
+  var vid  = document.getElementById('camera_video');
+  var wrap = document.getElementById('camera_wrap');
+  if (vid) vid.srcObject = null;
+  if (wrap) wrap.style.display = 'none';
+}
+
+/* ============================================================
    COLLECT / APPLY STATE  (v3)
    ============================================================ */
 function collectState(){
   var sigs = {};
   SIG_KEYS.forEach(function(k){ var d=getSigData(k); if(d) sigs[k]=d; });
-  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2, sigs:sigs};
+  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2, sigs:sigs, photo:_photoData};
   document.querySelectorAll('input[type="text"],input[type="date"],textarea').forEach(function(el){
     if(el.id) st.fields[el.id]=el.value;
   });
@@ -1798,6 +1947,8 @@ function applyState(st){
     });
   }
   if(JU) pickJury(JU);
+  /* Restaurer la photo */
+  if (st.photo) { setPhoto(st.photo); } else { clearPhoto(); }
   /* Restaurer les signatures */
   if(st.sigs){
     SIG_KEYS.forEach(function(k){
@@ -1884,29 +2035,6 @@ function openModal(){
   document.getElementById('saveModal').classList.add('open');
 }
 function closeModal(){document.getElementById('saveModal').classList.remove('open');}
-
-/* ── Surcharge openModal (OneDrive UI reset) ── */
-(function(){
-  var _orig = openModal;
-  openModal = function(){
-    _orig();
-    var btn=document.getElementById('btnOneDrive');
-    var lbl=document.getElementById('od_btn_label');
-    var ico=document.getElementById('od_btn_icon');
-    if(btn) btn.disabled=false;
-    if(lbl) lbl.textContent='Enregistrer sur OneDrive';
-    if(ico) ico.textContent='☁️';
-    odMsgClear();
-    var picker=document.getElementById('od_picker');
-    if(picker){ picker.style.display='none'; picker.innerHTML=''; }
-    checkLocalWarn();
-    updateOdAccountBar();
-    if(!getOdCfg().clientId){
-      var cfgDiv=document.getElementById('od_cfg');
-      if(cfgDiv) cfgDiv.style.display='block';
-    }
-  };
-})();
 
 /* ============================================================
    SAUVEGARDE LOCALE (liste nommée)
