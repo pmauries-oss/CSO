@@ -295,7 +295,12 @@ textarea { resize: vertical; min-height: 70px; }
 }
 @media print {
   .tabs,.btn-row,.btn-save-hdr,.modal-overlay,.toast,.photo-btns,
-  .nr-btn,.nr-cell,.nr-cell *{display:none!important;}
+  .nr-btn{display:none!important;}
+  /* Afficher NR en rouge quand actif */
+  .nr-btn.active::after{content:'NR';display:inline-block!important;
+    background:#e53935;color:#fff;font-size:9px;font-weight:bold;
+    border-radius:4px;padding:2px 6px;}
+  .nr-btn.active{display:inline-block!important;}
   body{background:white;color:black;}
   .card{border:1px solid #ccc;background:white;}
   .card-title{color:#cc0000;}
@@ -409,6 +414,8 @@ textarea { resize: vertical; min-height: 70px; }
 .toast.ok {border-color:#a5d6a7;background:#f1f8f1;}
 .toast.err{border-color:#ffcdd2;background:#fff5f5;}
 </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -508,6 +515,7 @@ textarea { resize: vertical; min-height: 70px; }
     <div id="mod2_info" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:12px;"></div>
   </div>
   <div class="btn-row">
+    <button class="btn btn-primary" onclick="printTab(0)">🖨️ Imprimer cet onglet</button>
     <button class="btn btn-primary" onclick="goTab(1)">J1 Matin →</button>
   </div>
 </div>
@@ -1336,6 +1344,7 @@ function buildDay(day) {
 
     +'<div class="btn-row">'
     +'<button class="btn btn-secondary" onclick="goTab('+day.prevTab+')">'+day.prevLabel+'</button>'
+    +'<button class="btn btn-primary"   onclick="printTab('+day.tab+')">🖨️ Imprimer cet onglet</button>'
     +'<button class="btn btn-primary"   onclick="goTab('+day.nextTab+')">'+day.nextLabel+'</button>'
     +'</div>';
 
@@ -2116,27 +2125,284 @@ function updateRattrVisa() {
 /* ============================================================
    IMPRESSION ONGLET UNIQUE
    ============================================================ */
-function printTab(tabId) {
-  /* Marquer la section cible */
+async function printTab(tabId) {
   var target = document.getElementById('s' + tabId);
-  if (!target) { window.print(); return; }
+  if (!target) return;
 
-  /* Rafraîchir le bilan si c'est l'onglet 7 */
+  /* Rafraîchir le bilan si nécessaire */
   if (tabId === 7) refreshBilan();
 
-  /* Appliquer mode impression ciblée */
-  document.body.classList.add('print-single');
-  target.classList.add('print-target');
+  /* Noms de fichiers */
+  var tabNames = {6:'Diagnostic', 7:'Bilan_Jury', 8:'Rattrapage'};
+  var stag = getStagName() || 'stagiaire';
+  var fname = 'CSO_' + safeName(stag) + '_' + (tabNames[tabId]||'onglet'+tabId) + '.pdf';
 
-  /* Lancer l'impression */
-  setTimeout(function() {
-    window.print();
-    /* Nettoyer après impression */
-    setTimeout(function() {
-      document.body.classList.remove('print-single');
-      target.classList.remove('print-target');
-    }, 500);
-  }, 150);
+  /* Afficher un toast de chargement */
+  if (!window.jspdf || !window.html2canvas) {
+    toast('❌ Librairies PDF non chargées. Ouvrez le livret depuis GitHub Pages (https://).', 'err', 8000);
+    return;
+  }
+  toast('⏳ Génération du PDF en cours...', 'ok', 8000);
+
+  /* Préparer le clone pour le rendu */
+  var clone = target.cloneNode(true);
+  clone.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:white;color:black;padding:20px;box-sizing:border-box;z-index:99999;overflow:visible;';
+  /* Masquer les boutons de navigation et NR dans le clone */
+  /* Afficher les NR actifs dans le PDF */
+  clone.querySelectorAll('.nr-btn.active').forEach(function(el){
+    el.style.cssText = 'display:inline-block!important;background:#e53935;color:#fff;'
+      +'font-size:9px;font-weight:bold;border-radius:4px;padding:2px 6px;border:none;';
+    el.textContent = 'NR';
+  });
+  clone.querySelectorAll('.nr-btn:not(.active)').forEach(function(el){
+    el.style.display='none';
+  });
+  clone.querySelectorAll('.btn-row,.sig-btn,.photo-btns,.sig-placeholder').forEach(function(el){
+    el.style.display='none';
+  });
+  /* Copier les valeurs des inputs/textareas/selects */
+  var origInputs  = target.querySelectorAll('input,textarea,select');
+  var cloneInputs = clone.querySelectorAll('input,textarea,select');
+  origInputs.forEach(function(el, i){
+    if (!cloneInputs[i]) return;
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      cloneInputs[i].checked = el.checked;
+    } else {
+      cloneInputs[i].value = el.value;
+    }
+  });
+  /* Copier les canvas (signatures + photo) */
+  var origCanvases  = target.querySelectorAll('canvas');
+  var cloneCanvases = clone.querySelectorAll('canvas');
+  origCanvases.forEach(function(c, i){
+    if (!cloneCanvases[i]) return;
+    var ctx = cloneCanvases[i].getContext('2d');
+    cloneCanvases[i].width  = c.width;
+    cloneCanvases[i].height = c.height;
+    ctx.drawImage(c, 0, 0);
+  });
+
+  document.body.appendChild(clone);
+
+  try {
+    /* Rendu haute résolution */
+    var canvas = await html2canvas(clone, {
+      scale       : 2,
+      useCORS     : true,
+      allowTaint  : true,
+      backgroundColor: '#ffffff',
+      width       : 794,
+      windowWidth : 794
+    });
+
+    var imgData = canvas.toDataURL('image/jpeg', 0.92);
+    var { jsPDF } = window.jspdf;
+    var pdf     = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+    var margin  = 8;
+    var pdfW    = pdf.internal.pageSize.getWidth();
+    var pdfH    = pdf.internal.pageSize.getHeight();
+    var usableW = pdfW - margin * 2;
+    var usableH = pdfH - margin * 2;
+
+    /* Calcul du ratio canvas → mm */
+    var canvasW  = canvas.width;
+    var canvasH  = canvas.height;
+    /* Largeur image en mm à l'échelle 1:1 */
+    var imgW     = usableW;
+    var imgH     = imgW * (canvasH / canvasW);
+
+    /* Si tout tient sur une page → on réduit juste assez */
+    if (imgH <= usableH) {
+      pdf.addImage(imgData, 'JPEG', margin, margin, imgW, imgH);
+    } else {
+      /* Réduire la hauteur totale pour tenir sur 1 page (texte plus petit) */
+      var scale1page = usableH / imgH;
+      if (scale1page >= 0.45) {
+        /* Assez lisible : tout sur une page réduit */
+        var fittedW = imgW * scale1page;
+        var fittedH = imgH * scale1page;
+        var offsetX = margin + (usableW - fittedW) / 2;
+        pdf.addImage(imgData, 'JPEG', offsetX, margin, fittedW, fittedH);
+      } else {
+        /* Contenu très long : découpe propre en pages sans coupure au milieu d'une ligne */
+        /* On calcule combien de pixels canvas correspondent à une page PDF */
+        var pxPerPage = Math.floor(canvasH * (usableH / imgH));
+        var page = 0;
+        var yPx  = 0;
+        while (yPx < canvasH) {
+          if (page > 0) pdf.addPage();
+          var sliceH = Math.min(pxPerPage, canvasH - yPx);
+          var tmp = document.createElement('canvas');
+          tmp.width  = canvasW;
+          tmp.height = sliceH;
+          tmp.getContext('2d').drawImage(canvas, 0, yPx, canvasW, sliceH, 0, 0, canvasW, sliceH);
+          var sliceImgH = usableH * (sliceH / pxPerPage);
+          pdf.addImage(tmp.toDataURL('image/jpeg', 0.92), 'JPEG', margin, margin, imgW, sliceImgH);
+          yPx += sliceH;
+          page++;
+        }
+      }
+    }
+
+    pdf.save(fname);
+    toast('✅ PDF téléchargé : ' + fname, 'ok', 4000);
+  } catch(err) {
+    console.error(err);
+    toast('Erreur PDF — impression navigateur lancée','err',4000);
+  }
+}
+
+/* ============================================================
+   IMPRESSION LIVRET COMPLET (multi-onglets → 1 PDF)
+   ============================================================ */
+/* Convertit les champs de saisie en texte visible pour html2canvas */
+function cloneForPdf(source) {
+  var clone = source.cloneNode(true);
+  clone.style.cssText = 'position:absolute;left:0;top:-99999px;width:794px;background:white;'
+    +'color:black;padding:20px;box-sizing:border-box;overflow:visible;pointer-events:none;visibility:hidden;';
+
+  /* Cacher boutons nav/NR inactifs */
+  clone.querySelectorAll('.btn-row,.sig-btn,.photo-btns,.sig-placeholder').forEach(function(el){
+    el.style.display='none';
+  });
+  clone.querySelectorAll('.nr-btn.active').forEach(function(el){
+    el.style.cssText='display:inline-block!important;background:#e53935;color:#fff;'
+      +'font-size:9px;font-weight:bold;border-radius:4px;padding:2px 6px;border:none;';
+    el.textContent='NR';
+  });
+  clone.querySelectorAll('.nr-btn:not(.active)').forEach(function(el){
+    el.style.display='none';
+  });
+
+  /* Remplacer inputs/textareas/selects par du texte visible */
+  var origEls  = source.querySelectorAll('input[type="text"],input[type="date"],textarea,select');
+  var cloneEls = clone.querySelectorAll('input[type="text"],input[type="date"],textarea,select');
+  origEls.forEach(function(orig, i) {
+    var cl = cloneEls[i];
+    if (!cl) return;
+    var val = orig.value || '';
+    var div = document.createElement('div');
+    div.style.cssText = 'font-size:12px;color:'+(val?'#111':'#bbb')+';padding:5px 8px;'
+      +'border:1px solid #ccc;border-radius:5px;background:#fff;min-height:24px;'
+      +'word-break:break-word;white-space:pre-wrap;';
+    div.textContent = val || (orig.placeholder || '');
+    cl.parentNode.replaceChild(div, cl);
+  });
+
+  /* Copier les canvas (signatures, photo) */
+  var origCanvases  = source.querySelectorAll('canvas');
+  var cloneCanvases = clone.querySelectorAll('canvas');
+  origCanvases.forEach(function(c, i) {
+    if (!cloneCanvases[i]) return;
+    cloneCanvases[i].width  = c.width;
+    cloneCanvases[i].height = c.height;
+    cloneCanvases[i].getContext('2d').drawImage(c, 0, 0);
+  });
+
+  return clone;
+}
+
+/* Capture html2canvas d'un clone et retourne le canvas */
+async function captureClone(clone) {
+  /* Conteneur isolé — jamais visible à l'écran */
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;z-index:-9999;';
+  clone.style.cssText = 'position:absolute;left:0;top:0;width:794px;background:white;'
+    +'color:black;padding:20px;box-sizing:border-box;overflow:visible;';
+  wrap.appendChild(clone);
+  document.body.appendChild(wrap);
+  await new Promise(function(r){ setTimeout(r, 80); });
+  try {
+    var canvas = await html2canvas(clone, {
+      scale:2, useCORS:true, allowTaint:true,
+      backgroundColor:'#ffffff', width:794, windowWidth:794,
+      logging:false
+    });
+    return canvas;
+  } finally {
+    if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+  }
+}
+
+async function printFullLivret() {
+  var tabIds   = [0, 1, 2, 3, 4, 5, 6, 7];
+  var tabNames = ['Identite','J1_Matin','J1_AM','Jour2','J3_Matin','J3_AM','Diagnostic','Bilan_Jury'];
+
+  /* Rafraîchir le bilan */
+  refreshBilan();
+
+  var stag  = getStagName() || 'stagiaire';
+  var fname = 'CSO_' + safeName(stag) + '_livret_complet.pdf';
+
+  toast('⏳ Génération du livret complet en cours...', 'ok', 30000);
+
+  if (!window.jspdf || !window.html2canvas) {
+    toast('❌ Librairies PDF non chargées. Ouvrez le livret depuis GitHub Pages (https://).', 'err', 8000);
+    return;
+  }
+  var { jsPDF } = window.jspdf;
+  var pdf = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+  var margin  = 8;
+  var pdfW    = pdf.internal.pageSize.getWidth();
+  var pdfH    = pdf.internal.pageSize.getHeight();
+  var usableW = pdfW - margin * 2;
+  var usableH = pdfH - margin * 2;
+  var firstPage = true;
+
+  for (var t = 0; t < tabIds.length; t++) {
+    var tabId  = tabIds[t];
+    var target = document.getElementById('s' + tabId);
+    if (!target) continue;
+
+    var clone = cloneForPdf(target);
+
+    try {
+      var canvas = await captureClone(clone);
+
+      var canvasW = canvas.width, canvasH = canvas.height;
+      var imgW    = usableW;
+      var imgH    = imgW * (canvasH / canvasW);
+
+      /* Titre de l'onglet en haut */
+      var sectionTitle = tabNames[t].replace(/_/g,' ');
+
+      if (!firstPage) pdf.addPage();
+      firstPage = false;
+
+      /* En-tête discret */
+      pdf.setFontSize(7);
+      pdf.setTextColor(150);
+      pdf.text('CSO — ' + stag + ' — ' + sectionTitle, margin, margin - 2);
+      pdf.setTextColor(0);
+
+      if (imgH <= usableH) {
+        pdf.addImage(canvas.toDataURL('image/jpeg',0.92), 'JPEG', margin, margin, imgW, imgH);
+      } else {
+        /* Réduire si possible sur 1 page */
+        var scale1 = usableH / imgH;
+        if (scale1 >= 0.40) {
+          var fw = imgW * scale1, fh = imgH * scale1;
+          pdf.addImage(canvas.toDataURL('image/jpeg',0.92), 'JPEG', margin + (usableW-fw)/2, margin, fw, fh);
+        } else {
+          /* Multi-pages pour cet onglet */
+          var pxPerPage = Math.floor(canvasH * (usableH / imgH));
+          var yPx = 0, pg = 0;
+          while (yPx < canvasH) {
+            if (pg > 0) { pdf.addPage(); pdf.setFontSize(7); pdf.setTextColor(150); pdf.text('CSO — '+stag+' — '+sectionTitle+' (suite)', margin, margin-2); pdf.setTextColor(0); }
+            var sliceH = Math.min(pxPerPage, canvasH - yPx);
+            var tmp = document.createElement('canvas');
+            tmp.width=canvasW; tmp.height=sliceH;
+            tmp.getContext('2d').drawImage(canvas,0,yPx,canvasW,sliceH,0,0,canvasW,sliceH);
+            pdf.addImage(tmp.toDataURL('image/jpeg',0.92),'JPEG',margin,margin,imgW,usableH*(sliceH/pxPerPage));
+            yPx+=sliceH; pg++;
+          }
+        }
+      }
+    } catch(err) { console.error('Onglet '+tabId+' :', err); }
+  }
+
+  pdf.save(fname);
+  toast('✅ Livret complet téléchargé : ' + fname, 'ok', 5000);
 }
 
 /* ============================================================
