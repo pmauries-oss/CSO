@@ -166,7 +166,8 @@ textarea { resize: vertical; min-height: 70px; }
   font-size:9px; font-weight:bold; color:#888; background:#f0f0f0;
   border:1px dashed #bbb; border-radius:5px; padding:3px 6px; cursor:pointer; transition:all .15s;
 }
-.nr-btn:hover, .nr-btn.active { background:#ddd; color:#111; border-color:#666; }
+.nr-btn:hover { background:#ddd; color:#111; border-color:#666; }
+.nr-btn.active { background:#e53935; color:#fff; border-color:#c62828; border-style:solid; }
 
 /* DIAG SYNTHESE INFO BOX */
 .synth-info {
@@ -293,17 +294,21 @@ textarea { resize: vertical; min-height: 70px; }
   .sb, .sb-auto, .sb-none { width:26px; height:26px; font-size:13px; }
 }
 @media print {
-  .tabs,.btn-row,.btn-save-hdr,.modal-overlay,.toast{display:none!important;}
-  .section{display:block!important;page-break-after:always;}
+  .tabs,.btn-row,.btn-save-hdr,.modal-overlay,.toast,.photo-btns,
+  .nr-btn,.nr-cell,.nr-cell *{display:none!important;}
   body{background:white;color:black;}
   .card{border:1px solid #ccc;background:white;}
   .card-title{color:#cc0000;}
   input,textarea{border:1px solid #ccc!important;color:black!important;background:white!important;}
+  select{border:1px solid #ccc!important;color:black!important;background:white!important;}
   .sig-canvas{border:1px solid #999!important;border-style:solid!important;}
   .sig-btn,.sig-placeholder{display:none!important;}
-  .sig-canvas{border:1px solid #999!important;border-style:solid!important;}
-  .sig-btn{display:none!important;}
-  .sig-placeholder{display:none!important;}
+  /* Mode impression onglet unique */
+  body.print-single .section { display:none!important; }
+  body.print-single .section.print-target { display:block!important; }
+  body:not(.print-single) .section { display:block!important; page-break-after:always; }
+  /* Cacher le header SDIS en impression onglet */
+  body.print-single .header { display:none!important; }
 }
 
 /* BOUTON HEADER */
@@ -426,6 +431,7 @@ textarea { resize: vertical; min-height: 70px; }
   <button class="tab-btn"        onclick="goTab(5)">🌇 J3 AM</button>
   <button class="tab-btn"        onclick="goTab(6)">🔍 Diagnostic</button>
   <button class="tab-btn"        onclick="goTab(7)">📊 Bilan &amp; Jury</button>
+  <button class="tab-btn"        onclick="goTab(8)">🔄 Rattrapage</button>
 </div>
 
 <!-- 0: IDENTITÉ -->
@@ -576,6 +582,7 @@ textarea { resize: vertical; min-height: 70px; }
 
   <div class="btn-row">
     <button class="btn btn-secondary" onclick="goTab(5)">← J3 Après-midi</button>
+    <button class="btn btn-primary"   onclick="printTab(6)">🖨️ Imprimer cet onglet</button>
     <button class="btn btn-primary"   onclick="goTab(7)">Bilan &amp; Jury →</button>
   </div>
 </div>
@@ -616,12 +623,13 @@ textarea { resize: vertical; min-height: 70px; }
       </div>
       <div class="jury-opt" id="j_a1" onclick="pickJury('a1')">
         <div class="jury-icon">🔄</div>
-        <div class="jury-label" style="color:#fb8c00;">RATTRAPAGE</div>
+        <div class="jury-label" style="color:#fb8c00;">AJOURNÉ(E)</div>
         <div class="jury-desc">Perfectionnement tuteuré en caserne</div>
       </div>
       <div class="jury-opt" id="j_a2" onclick="pickJury('a2')">
         <div class="jury-icon">📚</div>
-        <div class="jury-label" style="color:#e53935;">ÉCHEC</div>
+        <div class="jury-label" style="color:#e53935;">AJOURNÉ(E)</div>
+        <div class="jury-desc">Refaire J1 et J3 du module</div>
       </div>
     </div>
   </div>
@@ -677,8 +685,116 @@ textarea { resize: vertical; min-height: 70px; }
 
   <div class="btn-row">
     <button class="btn btn-secondary" onclick="goTab(6)">← Diagnostic</button>
-    <button class="btn btn-primary"   onclick="window.print()">🖨️ Imprimer</button>
+    <button class="btn btn-primary"   onclick="printTab(7)">🖨️ Imprimer cet onglet</button>
     <button class="btn btn-warn"      onclick="resetAll()">🗑️ Réinitialiser</button>
+  </div>
+</div>
+
+<!-- 8: RATTRAPAGE -->
+<div class="section" id="s8">
+
+  <!-- En-tête rattrapage -->
+  <div class="card">
+    <div class="day-header">
+      <span style="font-size:22px;">🔄</span>
+      <div class="day-header-title">Rattrapage</div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+        <div>
+          <label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>
+          <select id="form_rattr" onchange="scheduleAutoSave()" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;min-width:180px;cursor:pointer;" id="form_rattr_sel">
+          </select>
+        </div>
+        <div>
+          <label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">📅 DATE</label>
+          <input type="date" id="date_rattr" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;">
+        </div>
+      </div>
+    </div>
+    <div class="form-group" style="margin-top:12px;">
+      <label style="font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#666;">Nom du stage de rattrapage</label>
+      <input type="text" id="f_nomstage_rattr" placeholder="Ex : Rattrapage CSO SP — Isère" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 12px;color:#111;font-size:13px;outline:none;">
+    </div>
+  </div>
+
+  <!-- Tableau évaluation formateur -->
+  <div class="card" style="overflow-x:auto;">
+    <div class="card-title">🔄 Évaluation de rattrapage — Formateur uniquement</div>
+    <table class="eval-table">
+      <thead><tr>
+        <th class="th-comp" style="width:55%;">Compétence</th>
+        <th class="th-form" style="width:35%;">👨‍🏫 Formateur</th>
+        <th class="th-nr">NR</th>
+      </tr></thead>
+      <tbody id="tbody_rattr"></tbody>
+    </table>
+  </div>
+
+  <!-- Observation formateur -->
+  <div class="card">
+    <div class="card-title">📝 Appréciation du formateur</div>
+    <div class="form-group">
+      <textarea id="obs_rattr" placeholder="Appréciation générale, points travaillés, évolution du stagiaire..." style="min-height:100px;"></textarea>
+    </div>
+  </div>
+
+  <!-- Décision du jury -->
+  <div class="card">
+    <div class="card-title">⚖️ Décision du jury — Rattrapage</div>
+    <div class="jury-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="jury-opt" id="rj_v" onclick="pickRattrJury('v')">
+        <div class="jury-icon">✅</div>
+        <div class="jury-label" style="color:#43a047;">VALIDÉ(E)</div>
+        <div class="jury-desc">Niveau atteint</div>
+      </div>
+      <div class="jury-opt" id="rj_e" onclick="pickRattrJury('e')">
+        <div class="jury-icon">❌</div>
+        <div class="jury-label" style="color:#e53935;">ÉCHEC</div>
+        <div class="jury-desc">Niveau non atteint</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signatures -->
+  <div class="card">
+    <div class="card-title">🖊️ Signatures — Rattrapage</div>
+    <div class="visa-grid">
+      <div class="visa-box">
+        <div class="visa-title">Responsable pédagogique</div>
+        <div class="sig-wrap">
+          <canvas id="sig_rattr_cp" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_rattr_cp_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('rattr_cp')">✕ Effacer</button>
+        </div>
+      </div>
+      <div class="visa-box">
+        <div class="visa-title">Stagiaire</div>
+        <div class="sig-wrap">
+          <canvas id="sig_rattr_app" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_rattr_app_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('rattr_app')">✕ Effacer</button>
+        </div>
+        <div class="visa-name" id="v_rattr_app"></div>
+      </div>
+      <div class="visa-box">
+        <div class="visa-title">Formateur</div>
+        <div class="sig-wrap">
+          <canvas id="sig_rattr_form" class="sig-canvas" width="400" height="120"></canvas>
+          <div class="sig-placeholder" id="sig_rattr_form_ph">✍️ Signer ici</div>
+        </div>
+        <div class="sig-actions">
+          <button class="sig-btn clear" onclick="clearSig('rattr_form')">✕ Effacer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="goTab(7)">← Bilan &amp; Jury</button>
+    <button class="btn btn-primary"   onclick="printTab(8)">🖨️ Imprimer cet onglet</button>
   </div>
 </div>
 
@@ -1070,7 +1186,7 @@ var J2_COMPS = [
   { id:'c_allure',     label:'Adaptation à la vitesse',                    sub:'Météo, obstacles, réactivité',               cat:'Technique'    },
   { id:'c_traje_voie', label:'Application des techniques',                 sub:'Trajectoire, positionnement',                cat:'Technique'    },
   { id:'c_gabarit',    label:'Trajectoire',                                sub:'Choix et réalisation de la trajectoire',     cat:'Technique'    },
-  { id:'c_code_sp',    label:'Application générale des consignes',         sub:'Consignes de sécurité',             cat:'Sécurité'     },
+  { id:'c_code_sp',    label:'Application générale des consignes',         sub:'Code SP, consignes de sécurité',             cat:'Sécurité'     },
 ];
 
 /* Les 4 jours pris en compte pour la synthèse diagnostique */
@@ -1094,11 +1210,13 @@ var SM = [
 ];
 
 /* State */
-var R  = { diag:{} };
-var NR = { diag:{} };
+var R  = { diag:{}, rattr:{} };
+var NR = { diag:{}, rattr:{} };
 var JU = '';
 var MOD2 = null;
 DAYS.forEach(function(d){ R[d.id]={}; NR[d.id]={}; });
+/* Init rattr */
+COMPS.forEach(function(c){ R['rattr'][c.id]={}; NR['rattr'][c.id]=false; });
 
 function toggleMod2() {
   if (MOD2 === null)      MOD2 = true;
@@ -1329,6 +1447,8 @@ function makeCabineToggle(dayId) {
 function makeSG(dayId, compId, who, readonly) {
   var sg = document.createElement('div'); sg.className='smileys';
   SM.forEach(function(s){
+    if(!R[dayId]) R[dayId]={};
+    if(!R[dayId][compId]) R[dayId][compId]={};
     var cur=(R[dayId][compId]&&R[dayId][compId][who])||null;
     if (readonly) {
       /* readonly : affichage seul */
@@ -1676,6 +1796,7 @@ function refreshBilan() {
   if(rn&&vr) vr.textContent=rn.value;
   var fn=document.getElementById('f_prenom'),ln=document.getElementById('f_nom'),va=document.getElementById('v_app');
   if(fn&&ln&&va) va.textContent=fn.value+' '+ln.value;
+  updateRattrVisa();
 }
 
 /* ============================================================
@@ -1718,6 +1839,7 @@ function resetAll(){
   document.getElementById('badge').className='badge';
   MOD2=null; renderMod2();
   DAYS.forEach(function(d){buildDay(d);});
+  RATTR_JU=''; buildRattrTable();
   buildDiag();
   goTab(0);
 }
@@ -1726,6 +1848,7 @@ function resetAll(){
    INIT
    ============================================================ */
 DAYS.forEach(function(d){ buildDay(d); });
+if (typeof buildRattrTable === 'function') buildRattrTable();
 buildDiag();
 
 /* Auto-restore depuis localStorage au chargement */
@@ -1742,7 +1865,7 @@ buildDiag();
 /* ============================================================
    SIGNATURES NUMÉRIQUES
    ============================================================ */
-var SIG_KEYS = ['resp','app','chef'];
+var SIG_KEYS = ['resp','app','chef','rattr_cp','rattr_app','rattr_form'];
 var _sigDrawing = {};
 
 function initSigPad(key) {
@@ -1902,12 +2025,127 @@ function stopCamera() {
 }
 
 /* ============================================================
+   RATTRAPAGE
+   ============================================================ */
+var RATTR_JU = '';
+
+function buildRattrTable() {
+  /* Peupler le select formateur */
+  var sel = document.getElementById('form_rattr');
+  if (sel && sel.options.length <= 1) {
+    FORMATEURS.forEach(function(f){
+      var opt = document.createElement('option');
+      opt.value = f; opt.textContent = f || '-- Choisir le formateur --';
+      if (!f) opt.disabled = true;
+      sel.appendChild(opt);
+    });
+  }
+  var tbody = document.getElementById('tbody_rattr');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  var lastCat = '';
+  COMPS.forEach(function(comp) {
+    if (comp.cat !== lastCat) {
+      lastCat = comp.cat;
+      var tr = document.createElement('tr'); tr.className='cat-row';
+      var td = document.createElement('td'); td.colSpan=3;
+      td.style.color = CAT_COLOR[comp.cat]||'#cc0000';
+      td.textContent = (CAT_ICON[comp.cat]||'')+' '+comp.cat;
+      tr.appendChild(td); tbody.appendChild(tr);
+    }
+    tbody.appendChild(makeRattrRow(comp));
+  });
+}
+
+function makeRattrRow(comp) {
+  var tr = document.createElement('tr');
+  var tdN = document.createElement('td');
+  tdN.innerHTML = '<div class="comp-name">'+comp.label+'</div>'+(comp.sub?'<div class="comp-sub">'+comp.sub+'</div>':'');
+  tr.appendChild(tdN);
+
+  var tdF = document.createElement('td'); tdF.className='smiley-cell';
+  if (comp.id === 'c_cabine') {
+    tdF.colSpan = 2;
+    tdF.style.textAlign = 'center';
+    tdF.appendChild(makeCabineToggle('rattr'));
+    tr.appendChild(tdF);
+    return tr;
+  }
+  var sgF = makeSG('rattr', comp.id, 'form', false);
+  tdF.appendChild(sgF); tr.appendChild(tdF);
+
+  var tdNR = document.createElement('td'); tdNR.className='nr-cell';
+  var nrb = document.createElement('button');
+  nrb.className='nr-btn'+((NR['rattr']&&NR['rattr'][comp.id])?' active':'');
+  nrb.textContent='NR'; nrb.title='Non Réalisé';
+  nrb.onclick=(function(cId,btn,sg){
+    return function(){
+      if(!NR['rattr']) NR['rattr']={};
+      if(!NR['rattr']) NR['rattr']={};
+      NR['rattr'][cId]=!NR['rattr'][cId];
+      btn.classList.toggle('active',NR['rattr'][cId]);
+      if(NR['rattr'][cId]){
+        if(!R['rattr']) R['rattr']={};
+        if(!R['rattr'][cId]) R['rattr'][cId]={};
+        R['rattr'][cId].form=null;
+        sg.querySelectorAll('.sb').forEach(function(b){b.className='sb';});
+      }
+    };
+  })(comp.id, nrb, sgF);
+  tdNR.appendChild(nrb); tr.appendChild(tdNR);
+  return tr;
+}
+
+function pickRattrJury(val) {
+  RATTR_JU = (RATTR_JU === val) ? '' : val;
+  ['v','e'].forEach(function(k){
+    var el=document.getElementById('rj_'+k);
+    if(!el) return;
+    el.className='jury-opt'+(k==='v'?' sel-v':' sel-a2');
+    if(RATTR_JU!==k) el.className='jury-opt';
+  });
+  scheduleAutoSave();
+}
+
+function updateRattrVisa() {
+  var fn=document.getElementById('f_prenom'), ln=document.getElementById('f_nom');
+  var va=document.getElementById('v_rattr_app');
+  if(fn&&ln&&va) va.textContent=(fn.value+' '+ln.value).trim();
+}
+
+/* ============================================================
+   IMPRESSION ONGLET UNIQUE
+   ============================================================ */
+function printTab(tabId) {
+  /* Marquer la section cible */
+  var target = document.getElementById('s' + tabId);
+  if (!target) { window.print(); return; }
+
+  /* Rafraîchir le bilan si c'est l'onglet 7 */
+  if (tabId === 7) refreshBilan();
+
+  /* Appliquer mode impression ciblée */
+  document.body.classList.add('print-single');
+  target.classList.add('print-target');
+
+  /* Lancer l'impression */
+  setTimeout(function() {
+    window.print();
+    /* Nettoyer après impression */
+    setTimeout(function() {
+      document.body.classList.remove('print-single');
+      target.classList.remove('print-target');
+    }, 500);
+  }, 150);
+}
+
+/* ============================================================
    COLLECT / APPLY STATE  (v3)
    ============================================================ */
 function collectState(){
   var sigs = {};
   SIG_KEYS.forEach(function(k){ var d=getSigData(k); if(d) sigs[k]=d; });
-  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2, sigs:sigs, photo:_photoData};
+  var st = {v:3, ts:Date.now(), fields:{}, selects:{}, R:R, NR:NR, JU:JU, MOD2:MOD2, sigs:sigs, photo:_photoData, RATTR_JU:RATTR_JU};
   document.querySelectorAll('input[type="text"],input[type="date"],textarea').forEach(function(el){
     if(el.id) st.fields[el.id]=el.value;
   });
@@ -1916,6 +2154,8 @@ function collectState(){
     var sel=document.getElementById('form_'+d.id);
     if(sel) st.selects['form_'+d.id]=sel.value;
   });
+  var selR=document.getElementById('form_rattr');
+  if(selR) st.selects['form_rattr']=selR.value;
   return st;
 }
 
@@ -1926,9 +2166,12 @@ function applyState(st){
   DAYS.forEach(function(d){ if(!R[d.id])R[d.id]={}; if(!NR[d.id])NR[d.id]={}; });
   if(!R.diag)  R.diag={};
   if(!NR.diag) NR.diag={};
+  if(!R.rattr)  R.rattr={};
+  if(!NR.rattr) NR.rattr={};
   JU   = st.JU||'';
   MOD2 = st.MOD2!==undefined ? st.MOD2 : null;
   DAYS.forEach(function(d){ buildDay(d); });
+  buildRattrTable();
   initAllSigs();
   buildDiag();
   renderMod2();
@@ -1946,6 +2189,7 @@ function applyState(st){
     });
   }
   if(JU) pickJury(JU);
+  RATTR_JU = st.RATTR_JU||''; if(RATTR_JU) pickRattrJury(RATTR_JU);
   /* Restaurer la photo */
   if (st.photo) { setPhoto(st.photo); } else { clearPhoto(); }
   /* Restaurer les signatures */
