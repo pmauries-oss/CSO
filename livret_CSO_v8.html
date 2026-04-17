@@ -484,8 +484,16 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="card-title">📋 Stage</div>
     <div class="form-grid">
       <div class="form-group full"><label>Nom du stage</label><input type="text" id="f_nomstage" placeholder="Ex : Conduite en situation opérationnelle – CSO SP"></div>
-      <div class="form-group"><label>Date début</label><input type="date" id="f_deb"></div>
-      <div class="form-group"><label>Date fin</label><input type="date" id="f_fin"></div>
+      <div class="form-group">
+        <label>Date début</label>
+        <input type="date" id="f_deb" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 12px;font-size:13px;color:#111;outline:none;width:100%;box-sizing:border-box;">
+        <div id="datedisplay_f_deb" style="font-size:11px;color:#888;margin-top:3px;min-height:14px;"></div>
+      </div>
+      <div class="form-group">
+        <label>Date fin</label>
+        <input type="date" id="f_fin" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 12px;font-size:13px;color:#111;outline:none;width:100%;box-sizing:border-box;">
+        <div id="datedisplay_f_fin" style="font-size:11px;color:#888;margin-top:3px;min-height:14px;"></div>
+      </div>
       <div class="form-group full"><label>Responsable pédagogique</label><input type="text" id="f_resp" value="BERNARD-BRET Philippe"></div>
     </div>
   </div>
@@ -2483,6 +2491,19 @@ async function printFullLivret() {
    DATES FORMAT FRANÇAIS  (jj/mm/aaaa)
    ============================================================ */
 function initFrenchDates() {
+  /* Connecter les dates identité */
+  ['f_deb','f_fin'].forEach(function(id) {
+    var inp  = document.getElementById(id);
+    var disp = document.getElementById('datedisplay_' + id);
+    if (!inp || !disp || inp.dataset.frInit) return;
+    inp.dataset.frInit = '1';
+    function refresh() {
+      disp.textContent = inp.value ? isoToFrLong(inp.value) : '';
+    }
+    inp.addEventListener('change', refresh);
+    inp.addEventListener('input',  function(){ scheduleAutoSave(); refresh(); });
+    refresh();
+  });
   document.querySelectorAll('input[type="date"]').forEach(function(inp) {
     if (inp.dataset.frInit) return;
     inp.dataset.frInit = '1';
