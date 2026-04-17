@@ -2296,6 +2296,21 @@ function cloneForPdf(source) {
     cloneCanvases[i].getContext('2d').drawImage(c, 0, 0);
   });
 
+  /* Remplacer chaque bouton smiley par un div coloré plein — garanti visible par html2canvas */
+  var smColors = {
+    s1: '#333333', s2: '#e53935', s3: '#fb8c00', s4: '#2e7d32'
+  };
+  clone.querySelectorAll('.sb, .sb-auto').forEach(function(el) {
+    var matched = null;
+    ['s1','s2','s3','s4'].forEach(function(cls){ if(el.classList.contains(cls)) matched=cls; });
+    var div = document.createElement('div');
+    div.style.cssText = 'display:inline-block;width:20px;height:20px;border-radius:4px;'
+      + 'background:' + (matched ? smColors[matched] : '#cccccc') + ';'
+      + 'border:2px solid ' + (matched ? smColors[matched] : '#aaaaaa') + ';'
+      + 'flex-shrink:0;vertical-align:middle;';
+    el.parentNode.replaceChild(div, el);
+  });
+
   return clone;
 }
 
