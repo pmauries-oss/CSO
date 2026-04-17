@@ -6,7 +6,7 @@
 <title>Livret CSO – SDIS 38</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; }
+body { font-family: Arial, sans-serif; background: #f5f5f5; color: #111; min-height: 100vh; overscroll-behavior-y: none; }
 
 /* HEADER */
 .header {
@@ -88,6 +88,10 @@ textarea { resize: vertical; min-height: 70px; }
   padding: 10px 14px; background: #fff3f3; border-radius: 8px; border-left: 4px solid #cc0000;
 }
 .day-header-title { font-weight: bold; font-size: 14px; color: #111; }
+.fr-date-wrap { position:relative; display:inline-block; }
+.fr-date-wrap input[type="date"] { position:absolute; opacity:0; width:100%; height:100%; top:0; left:0; cursor:pointer; }
+.fr-date-display { background:#fff; border:1px solid #ccc; border-radius:6px; padding:5px 10px; color:#111; font-size:12px; min-width:120px; cursor:pointer; display:inline-block; }
+.fr-date-display.empty { color:#aaa; }
 .day-header input[type="date"] {
   background:#fff; border:1px solid #ccc; border-radius:6px;
   padding:5px 10px; color:#111; font-size:12px; outline:none;
@@ -1299,16 +1303,17 @@ function buildDay(day) {
   var hasFormateur = (day.id !== 'j2');
 
   sec.innerHTML =
-    '<div class="day-header">'
-    +'<span style="font-size:22px;">'+day.emoji+'</span>'
-    +'<div class="day-header-title">'+day.label+'</div>'
-    +'<div style="margin-left:auto;display:flex;align-items:center;gap:12px;">'
+    '<div class="day-header" style="flex-wrap:wrap;gap:8px;">'
+    +'<span style="font-size:22px;flex-shrink:0;">'+day.emoji+'</span>'
+    +'<div class="day-header-title" style="flex-shrink:0;">'+day.label+'</div>'
+    +'<div style="margin-left:auto;display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;">'
     +(hasFormateur
-      ? '<div><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>'
+      ? '<div style="flex-shrink:0;"><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>'
         + makeFormateurSelect(day.id) + '</div>'
       : '')
-    +'<div><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">📅 DATE</label>'
-    +'<input type="date" id="date_'+day.id+'" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;">'
+    +'<div style="flex:1;min-width:180px;"><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">📅 DATE</label>'
+    +'<input type="date" id="date_'+day.id+'" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;width:100%;box-sizing:border-box;">'
+    +'<div id="datedisplay_'+day.id+'" style="font-size:12px;color:#aaa;margin-top:3px;min-height:16px;"></div>'
     +'</div>'
     +'</div></div>'
 
@@ -1346,6 +1351,26 @@ function buildDay(day) {
     +'</div>';
 
   buildDayTable(day.id, day.id === 'j2' ? J2_COMPS : COMPS, 'tbody_'+day.id);
+  /* Connecter l'input date au div d'affichage long */
+  (function(dId) {
+    setTimeout(function() {
+      var inp = document.getElementById('date_'+dId);
+      var disp = document.getElementById('datedisplay_'+dId);
+      if (!inp || !disp) return;
+      function refreshDisp() {
+        if (inp.value) {
+          disp.textContent = isoToFrLong(inp.value);
+          disp.style.color = '#111';
+        } else {
+          disp.textContent = 'Choisir une date';
+          disp.style.color = '#aaa';
+        }
+      }
+      inp.addEventListener('change', refreshDisp);
+      inp.addEventListener('input', refreshDisp);
+      refreshDisp();
+    }, 30);
+  })(day.id);
 }
 
 function buildDayTable(dayId, compList, tbodyId) {
@@ -2256,7 +2281,10 @@ async function printTab(tabId) {
 function cloneForPdf(source) {
   var clone = source.cloneNode(true);
   clone.style.cssText = 'position:absolute;left:0;top:-99999px;width:794px;background:white;'
-    +'color:black;padding:20px;box-sizing:border-box;overflow:visible;pointer-events:none;visibility:hidden;';
+    +'color:black;padding:20px;box-sizing:border-box;overflow:visible;pointer-events:none;';
+
+  /* Injecter un style qui force les couleurs claires pour le PDF */
+  clone.insertBefore(styleEl, clone.firstChild);
 
   /* Cacher boutons nav/NR inactifs */
   clone.querySelectorAll('.btn-row,.sig-btn,.photo-btns,.sig-placeholder').forEach(function(el){
@@ -2272,8 +2300,9 @@ function cloneForPdf(source) {
   });
 
   /* Remplacer inputs/textareas/selects par du texte visible */
-  var origEls  = source.querySelectorAll('input[type="text"],input[type="date"],textarea,select');
-  var cloneEls = clone.querySelectorAll('input[type="text"],input[type="date"],textarea,select');
+  /* Remplacer les champs texte/textarea/select par du texte visible */
+  var origEls  = source.querySelectorAll('input[type="text"],textarea,select');
+  var cloneEls = clone.querySelectorAll('input[type="text"],textarea,select');
   origEls.forEach(function(orig, i) {
     var cl = cloneEls[i];
     if (!cl) return;
@@ -2284,6 +2313,38 @@ function cloneForPdf(source) {
       +'word-break:break-word;white-space:pre-wrap;';
     div.textContent = val || (orig.placeholder || '');
     cl.parentNode.replaceChild(div, cl);
+  });
+
+  /* Dates journées : afficher le texte du div datedisplay_ */
+  var origDateInputs  = Array.from(source.querySelectorAll('input[type="date"]'));
+  var cloneDateInputs = Array.from(clone.querySelectorAll('input[type="date"]'));
+  origDateInputs.forEach(function(orig, i) {
+    var cl = cloneDateInputs[i];
+    if (!cl) return;
+    var val = orig.value || '';
+    var txt = val ? isoToFrLong(val) : '';
+    /* Chercher le datedisplay_ associé dans le clone */
+    var dispId = orig.id ? 'datedisplay_' + orig.id.replace('date_','') : '';
+    var dispEl = dispId ? clone.querySelector('#'+dispId) : null;
+    if (dispEl) {
+      /* Mettre à jour le texte et le style du div d'affichage */
+      dispEl.textContent = txt || 'Choisir une date';
+      dispEl.style.color = txt ? '#111' : '#aaa';
+      dispEl.style.minWidth = '200px';
+      dispEl.style.whiteSpace = 'nowrap';
+      /* Masquer l'input caché */
+      cl.style.display = 'none';
+    } else {
+      /* Fallback : fr-date-wrap ou remplacement direct */
+      var div = document.createElement('div');
+      div.style.cssText = 'display:inline-block;font-size:12px;padding:5px 10px;'
+        +'border:1px solid #ccc;border-radius:6px;background:#ffffff;'
+        +'color:'+(txt ? '#111' : '#aaa')+';min-width:180px;white-space:nowrap;';
+      div.textContent = txt;
+      var parent = cl.closest ? cl.closest('.fr-date-wrap') : null;
+      if (parent && parent.parentNode) parent.parentNode.replaceChild(div, parent);
+      else if (cl.parentNode) cl.parentNode.replaceChild(div, cl);
+    }
   });
 
   /* Copier les canvas (signatures, photo) */
@@ -2318,9 +2379,10 @@ function cloneForPdf(source) {
 async function captureClone(clone) {
   /* Conteneur isolé — jamais visible à l'écran */
   var wrap = document.createElement('div');
-  wrap.style.cssText = 'position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;z-index:-9999;';
-  clone.style.cssText = 'position:absolute;left:0;top:0;width:794px;background:white;'
-    +'color:black;padding:20px;box-sizing:border-box;overflow:visible;';
+  wrap.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;height:1px;overflow:visible;z-index:-9999;';
+  clone.style.position = 'absolute';
+  clone.style.left = '0';
+  clone.style.top = '0';
   wrap.appendChild(clone);
   document.body.appendChild(wrap);
   await new Promise(function(r){ setTimeout(r, 80); });
@@ -2418,6 +2480,59 @@ async function printFullLivret() {
 }
 
 /* ============================================================
+   DATES FORMAT FRANÇAIS  (jj/mm/aaaa)
+   ============================================================ */
+function initFrenchDates() {
+  document.querySelectorAll('input[type="date"]').forEach(function(inp) {
+    if (inp.dataset.frInit) return;
+    inp.dataset.frInit = '1';
+
+    /* Créer un span d'affichage */
+    var display = document.createElement('span');
+    display.className = 'fr-date-display empty';
+    display.textContent = 'jj/mm/aaaa';
+
+    /* Envelopper dans un conteneur */
+    var wrap = document.createElement('span');
+    wrap.className = 'fr-date-wrap';
+    inp.parentNode.insertBefore(wrap, inp);
+    wrap.appendChild(display);
+    wrap.appendChild(inp);
+
+    /* Mettre à jour l'affichage quand la valeur change */
+    function updateDisplay() {
+      if (inp.value) {
+        display.textContent = isoToFrLong(inp.value);
+        display.classList.remove('empty');
+      } else {
+        display.textContent = 'Choisir une date';
+        display.classList.add('empty');
+      }
+    }
+    inp.addEventListener('change', updateDisplay);
+    inp.addEventListener('input', updateDisplay);
+    updateDisplay();
+  });
+}
+
+/* Formater une valeur ISO en date longue française : jeudi 23 avril 2026 */
+var FR_JOURS  = ['dimanche','lundi','mardi','mercredi','jeudi','vendredi','samedi'];
+var FR_MOIS   = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+function isoToFrLong(val) {
+  if (!val) return '';
+  var p = val.split('-');
+  if (p.length !== 3) return val;
+  var d = new Date(parseInt(p[0]), parseInt(p[1])-1, parseInt(p[2]));
+  return FR_JOURS[d.getDay()] + ' ' + parseInt(p[2]) + ' ' + FR_MOIS[d.getMonth()] + ' ' + p[0];
+}
+
+/* Compatibilité : isoToFr reste disponible pour le PDF */
+function isoToFr(val) {
+  return isoToFrLong(val);
+}
+
+/* ============================================================
    COLLECT / APPLY STATE  (v3)
    ============================================================ */
 function collectState(){
@@ -2467,7 +2582,8 @@ function applyState(st){
     });
   }
   if(JU) pickJury(JU);
-  RATTR_JU = st.RATTR_JU||''; if(RATTR_JU) pickRattrJury(RATTR_JU);
+  RATTR_JU = st.RATTR_JU||'';
+  setTimeout(initFrenchDates, 50); if(RATTR_JU) pickRattrJury(RATTR_JU);
   /* Restaurer la photo */
   if (st.photo) { setPhoto(st.photo); } else { clearPhoto(); }
   /* Restaurer les signatures */
