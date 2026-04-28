@@ -776,7 +776,7 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="card-title">🖊️ Signatures — Rattrapage</div>
     <div class="visa-grid">
       <div class="visa-box">
-        <div class="visa-title">Responsable pédagogique</div>
+        <div class="visa-title">Chef de Piquets (CP)</div>
         <div class="sig-wrap">
           <canvas id="sig_rattr_cp" class="sig-canvas" width="400" height="120"></canvas>
           <div class="sig-placeholder" id="sig_rattr_cp_ph">✍️ Signer ici</div>
@@ -1291,9 +1291,10 @@ var FORMATEURS = [
 ];
 
 function makeFormateurSelect(dayId) {
-  var opts = FORMATEURS.map(function(f){
-    return '<option value="'+f+'"'+(f===''?' disabled':'')+'>'+( f||'-- Choisir le formateur --')+'</option>';
-  }).join('');
+  var opts = '<option value="" disabled selected>-- Choisir le formateur --</option>'
+    + FORMATEURS.filter(function(f){ return f !== ''; }).map(function(f){
+        return '<option value="'+f+'">'+f+'</option>';
+      }).join('');
   return '<select id="form_'+dayId+'" onchange="scheduleAutoSave()" '
     +'style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;'
     +'color:#111;font-size:12px;outline:none;min-width:200px;cursor:pointer;">'
@@ -1318,7 +1319,8 @@ function buildDay(day) {
     +(hasFormateur
       ? '<div style="flex-shrink:0;"><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>'
         + makeFormateurSelect(day.id) + '</div>'
-      : '')
+      : '<div style="flex-shrink:0;"><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">👨‍🏫 FORMATEUR</label>'
+        + '<div style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;font-size:12px;color:#111;min-width:200px;font-weight:bold;">Formateur CENTAURE</div></div>')
     +'<div style="flex:1;min-width:180px;"><label style="font-size:10px;color:#666;display:block;margin-bottom:3px;letter-spacing:1px;font-weight:bold;">📅 DATE</label>'
     +'<input type="date" id="date_'+day.id+'" style="background:#fff;border:1px solid #ccc;border-radius:6px;padding:5px 10px;color:#111;font-size:12px;outline:none;width:100%;box-sizing:border-box;">'
     +'<div id="datedisplay_'+day.id+'" style="font-size:12px;color:#aaa;margin-top:3px;min-height:16px;"></div>'
